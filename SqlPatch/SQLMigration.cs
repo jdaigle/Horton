@@ -2,14 +2,14 @@ using System;
 using System.Data.SqlClient;
 using System.IO;
 
-namespace SchemaMigrator
+namespace SqlPatch
 {
-    public class SQLMigration : Migration
+    public class SqlMigration : Migration
     {
         public String ScriptName { get; private set; }
         public String FilePath { get; private set; }
 
-        public SQLMigration(String filePath, String name)
+        public SqlMigration(String filePath, String name)
         {
             FilePath = filePath;
             ScriptName = name;

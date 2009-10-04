@@ -1,78 +1,85 @@
-----
-Contact and Copyright Notice
-----
+Simple Sql Patching Utility
 
-All binaries are Copyright 2007 Cridion Technologies.
+--------------
+About
+--------------
 
-You can contact Cridion at webmaster@cridion.com.
+Author: joseph@cridion.com
+Version: 1.0
+Website: http://github.com/jdaigle/SqlPatch
 
-----
-32 bit versus 64 bit Version Note!!!
-----
+This is small utility provides the ability to apply T-SQL based patches or
+migrations to an MS SQL database. A patch is a forward only migration of a 
+SQL database schema.
 
-When using SMO Migrations on a machine with the 64bit version of SQL Server, you need
-to insure that the assemblies included in this Migrator.exe directory are supported
-for 64bit SQL. You also must install the Microsoft SQL Server 2005 Management Objects Collection
-for 64bit SQL Server. Currently available at:
+--------------
+Change History
+--------------
 
-http://www.microsoft.com/downloads/details.aspx?FamilyID=d09c1d60-a13c-4479-9b91-9e8b9d835cdc&displaylang=en
+Version 1.0 (Oct 4, 2009)
+- Initial Release
 
-If you are using 32bit SQL, or only uses SQL Script based Migrations, the above does not apply.
+--------------
+How to use
+--------------
 
-----
-How to use SQL .NET Migrations
-----
+The executable accepts the following command line arguments:
 
-SQL .NET Migrations is a database schema management tool modeled
-identical to Rails Migrations. Schema versions are coded into source files.
-These source files are sequentically numbered indicating the version number it
-represents.
+/m PATH			Migration Directory Path
+/s SERVER		SQL Server Network Address
+/d DATABASE		SQL Server Database Name
+/i				Integrated SQL Server Security
+/u USERNAME		SQL Server Login Username
+/p PASSWORD		SQL Server Login Password
 
-There are two types of migrations. The first is an SMO Migration, that uses the
-the SQL Mamanagment Objects API. The second is based on SQL Script pairs.
+When you use the "/i" argument you do not need to specify the username or
+password.
 
-----
-SMO Migrations
-----
+Examples:
 
-Source files are compiled at runtime. Each file contains one class that extends 
-from Cridion.SchemaMigrator.Migration, which is an abstract class. It must override
-the methods Up() and Down().
+SqlPatch.exe /m \Migrations /s .\SQLEXPRESS /d Northwind /i
+SqlPatch.exe /m \Migrations /s .\SQLEXPRESS /d Northwind /u sa /p pa55w0rd
+SqlPatch.exe /m "c:\Example Folder\Migrations" /s .\SQLEXPRESS /d Northwind /i
 
-The method Up() defines the operations to bring the database up to this specific
-schema version given the previous state. The Down() method defines operations to reverse
-Up() rolling the database schema back to it's previous schema state.
+Each T-SQL patch can represent a single database change. These are executed in a
+specific order determined by the filename convention:
 
-It is heavily suggested that all operations use the Microsoft.SqlServer.Management.Smo
-namespace for database object management. This provides strong typing and compile time checking
-of source errors. Runtime will produce meaningful exceptions.
+"0001_Description.sql"
 
-The class can be named anything, in any none-global namespace (to avoid naming conflicts). Each class
-is loaded independently into memory, so they will not conflict.
+Basically the program accepts any ".sql" file which begins with text that can
+be parsed into an integer followed by an undercore and descriptive file. For
+example:
 
-Filename format is as follows: 001_classname.cs
+0001_Initial_Create_Tables.sql
+002_Add_Some_Columns.sql
+00003_Drop_Some_Columns.sql
+4_Add_New_Table.sql
 
-----
-SQL Migrations
-----
+These are executed in order based on the integer prefix and not the alphabet.
 
-These are pairs of Transactional SQL Scripts. The important aspect is the filename. It must begin with
-the schema number, followed by an underscore, followed by either "up" or "down" followed by an underscore,
-followed by a name, followed by ".sql".
+The T-SQL should generally follow these rules:
 
-Example: 001_up_name.sql
-		 001_down_name.sql
+1. Should be single change, or a set of related changes.
+2. Should protect data, do no drop existing data without a known backup.
+3. The script should be able to run against a production system without breaking.
+4. (Optional) the script should be able to run multiple times with side-effects
 
-Scripts must come as pairs.
+The utility will create a table in the target database if it doesn't exist which
+will contain information about what migrations/patches have already been run
+against the database. The table has the following schema:
 
-The scripts are composed of Transactional SQL commands. Each command must be delimited by the statement GO.
+CREATE TABLE schema_info ( 
+	version int NOT NULL, 
+	migration_script varchar(255) NOT NULL
+	)
+	
+The first column contains the integer of the migration/patch that was run, and the
+second column contains the file-name of the migration/patch that was run.
 
-----
-Other Stuff
-----
+When the utility executes against the database, it queries for the last (version with
+greatest integer value) migration/patch run. It will then run any migration/patches
+found in the migration directory which are greater than that value. As each
+script executes it is stored in the schema_info table.
 
-The schema version is dependant on file names. They must be consecutive, starting at 1.
-The number of significant digits is not important, as long as it represents an integer value.
-The version number must be the first part of the filename, followed by the underscore character.
-
-Simple run the program. You can pass in a command line argument indicated the schema version to roll to.
+Each migration/patch is executed within a transaction. If for any reason it fails,
+the transaction is rolled-back and the process is aborted.

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SchemaMigrator
+namespace SqlPatch
 {
     public class MigrationException : Exception
     {

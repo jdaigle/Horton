@@ -4,7 +4,7 @@ using System.Collections;
 using System.Text;
 using System.IO;
 
-namespace SchemaMigrator
+namespace SqlPatch
 {
     public class Program
     {
@@ -25,7 +25,7 @@ namespace SchemaMigrator
         {
             var output = new StringBuilder();
             output.AppendLine();
-            output.AppendLine("Simple Schema Migrator Command Line Arguments");
+            output.AppendLine("Simple Sql Patcher Command Line Arguments");
             output.AppendLine("---");
             output.AppendLine("/m PATH\t\tMigration Directory Path (no spaces or surrounded by quotes)");
             output.AppendLine("/s SERVER\tSQL Server Network Address");
@@ -35,9 +35,9 @@ namespace SchemaMigrator
             output.AppendLine("/p PASSWORD\tSQL Server Login Password");
             output.AppendLine();
             output.AppendLine("EXAMPLES:");
-            output.AppendLine(@"SchemaMigrator.exe /m \Migrations /s .\SQLEXPRESS /d Northwind /i");
-            output.AppendLine(@"SchemaMigrator.exe /m \Migrations /s .\SQLEXPRESS /d Northwind /u sa /p pa55w0rd");
-            output.AppendLine("SchemaMigrator.exe /m \"c:\\Example Folder\\Migrations\" /s .\\SQLEXPRESS /d Northwind /i");
+            output.AppendLine(@"SqlPatch.exe /m \Migrations /s .\SQLEXPRESS /d Northwind /i");
+            output.AppendLine(@"SqlPatch.exe /m \Migrations /s .\SQLEXPRESS /d Northwind /u sa /p pa55w0rd");
+            output.AppendLine("SqlPatch.exe /m \"c:\\Example Folder\\Migrations\" /s .\\SQLEXPRESS /d Northwind /i");
             output.AppendLine();
             Console.Out.WriteLine(output.ToString());
         }

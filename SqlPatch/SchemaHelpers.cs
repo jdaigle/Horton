@@ -2,7 +2,7 @@
 using System.Data.SqlClient;
 using System.Linq;
 
-namespace SchemaMigrator
+namespace SqlPatch
 {
     public class SchemaHelpers
     {

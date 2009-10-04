@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.IO;
 
-namespace SchemaMigrator
+namespace SqlPatch
 {
     public class MigrationEngine
     {
@@ -22,7 +22,7 @@ namespace SchemaMigrator
                 if (currentVersion >= version)
                     continue;
                 Console.WriteLine("Applying Migration: " + fileName);
-                var migration = new SQLMigration(file.FullName, file.Name);
+                var migration = new SqlMigration(file.FullName, file.Name);
                 migration.Execute();
                 SchemaHelpers.InsertVersion(version, fileName);
                 Console.WriteLine("Applied, schema is at version: " + version.ToString());

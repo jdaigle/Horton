@@ -3,7 +3,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Text.RegularExpressions;
 
-namespace SchemaMigrator
+namespace SqlPatch
 {
     public class SqlHelpers
     {
