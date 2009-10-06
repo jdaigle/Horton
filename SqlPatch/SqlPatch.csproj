@@ -53,12 +53,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SchemaHelpers.cs" />
     <Compile Include="SqlHelpers.cs" />
-    <Compile Include="SQLMigration.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="README.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <Compile Include="SqlMigration.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Migrations\001_CreateTables.sql">
@@ -66,7 +61,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="LICENSE.txt" />
     <Content Include="Migrations\002_CreateTable.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
