@@ -17,7 +17,12 @@ namespace SqlPatch
                 return;
             }
             Console.WriteLine("\nStarting Migration\n");
-            new MigrationEngine().Migrate();
+            var engine = new MigrationEngine();
+            engine.Migrate();
+            Console.WriteLine();
+            engine.BuildViews();
+            Console.WriteLine();
+            engine.BuildSprocs();
             Console.WriteLine("\nMigration Complete\n");
         }
 
@@ -27,15 +32,18 @@ namespace SqlPatch
             output.AppendLine();
             output.AppendLine("Simple Sql Patcher Command Line Arguments");
             output.AppendLine("---");
-            output.AppendLine("/m PATH\t\tMigration Directory Path (no spaces or surrounded by quotes)");
-            output.AppendLine("/s SERVER\tSQL Server Network Address");
-            output.AppendLine("/d DATABASE\tSQL Server Database Name");
-            output.AppendLine("/i \t\tIntegrated SQL Server Security");
-            output.AppendLine("/u USERNAME\tSQL Server Login Username");
-            output.AppendLine("/p PASSWORD\tSQL Server Login Password");
+            output.AppendLine("/m  PATH\t\tMigration Directory Path (no spaces or surrounded by quotes)");
+            output.AppendLine("/sp PATH\t\tSprocs Directory Path (no spaces or surrounded by quotes)");
+            output.AppendLine("/vw PATH\t\tViews Directory Path (no spaces or surrounded by quotes)");
+            output.AppendLine("/s  SERVER\tSQL Server Network Address");
+            output.AppendLine("/d  DATABASE\tSQL Server Database Name");
+            output.AppendLine("/i  \t\tIntegrated SQL Server Security");
+            output.AppendLine("/u  USERNAME\tSQL Server Login Username");
+            output.AppendLine("/p  PASSWORD\tSQL Server Login Password");
             output.AppendLine();
             output.AppendLine("EXAMPLES:");
             output.AppendLine(@"SqlPatch.exe /m \Migrations /s .\SQLEXPRESS /d Northwind /i");
+            output.AppendLine(@"SqlPatch.exe /m \Migrations /sp \sprocs /vw \views /s .\SQLEXPRESS /d Northwind /i");
             output.AppendLine(@"SqlPatch.exe /m \Migrations /s .\SQLEXPRESS /d Northwind /u sa /p pa55w0rd");
             output.AppendLine("SqlPatch.exe /m \"c:\\Example Folder\\Migrations\" /s .\\SQLEXPRESS /d Northwind /i");
             output.AppendLine();
@@ -55,6 +63,18 @@ namespace SqlPatch
                     if (lastArg)
                         return false;
                     Configuration.World.MigrationDirectoryPath = args[i + 1];
+                }
+                if (argument.Equals("/sp", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (lastArg)
+                        return false;
+                    Configuration.World.SprocsDirectoryPath = args[i + 1];
+                }
+                if (argument.Equals("/vw", StringComparison.OrdinalIgnoreCase))
+                {
+                    if (lastArg)
+                        return false;
+                    Configuration.World.ViewsDirectoryPath = args[i + 1];
                 }
                 else if (argument.Equals("/s", StringComparison.OrdinalIgnoreCase))
                 {

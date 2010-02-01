@@ -23,7 +23,7 @@ namespace SqlPatch
         public static void EnsureSchemaInfoTable()
         {
             var query = "SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE' AND TABLE_NAME='schema_info'";
-            var createtable = "CREATE TABLE schema_info ( version int NOT NULL, migration_script varchar(255) NOT NULL )";
+            var createtable = "CREATE TABLE schema_info ( version int NOT NULL, migration_script varchar(255) NOT NULL, CONSTRAINT [PK_schema_info] PRIMARY KEY CLUSTERED ([version]) )";
             using (var connection = new SqlConnection(CreateConnectionString()))
             {
                 var queryCommand = new SqlCommand(query, connection);

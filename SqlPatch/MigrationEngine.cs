@@ -25,7 +25,39 @@ namespace SqlPatch
                 var migration = new SqlMigration(file.FullName, file.Name);
                 migration.Execute();
                 SchemaHelpers.InsertVersion(version, fileName);
-                Console.WriteLine("Applied, schema is at version: " + version.ToString());
+                Console.WriteLine("Applied, schema is at version: " + version.ToString() + "\n");
+            }
+        }
+
+        public void BuildViews()
+        {
+            if (!string.IsNullOrEmpty(Configuration.World.ViewsDirectoryPath))
+            {
+                Console.WriteLine("Building Views...");
+                Build(Configuration.World.ViewsDirectoryPath);
+            }
+        }
+
+        public void BuildSprocs()
+        {
+            if (!string.IsNullOrEmpty(Configuration.World.SprocsDirectoryPath))
+            {
+                Console.WriteLine("Building Stored Procedures...");
+                Build(Configuration.World.SprocsDirectoryPath);
+            }
+        }
+
+        public void Build(string path)
+        {
+            SchemaHelpers.EnsureSchemaInfoTable();
+            FileInfo[] files = GetAllMigrationFiles(path);
+
+            foreach (var file in files)
+            {
+                var fileName = file.Name;
+                Console.WriteLine("Building: " + fileName);
+                var migration = new SqlMigration(file.FullName, file.Name);
+                migration.Execute();
             }
         }
 
@@ -36,6 +68,12 @@ namespace SqlPatch
                 {
                     return Int32.Parse(x.Name.Substring(0, x.Name.IndexOf('_')));
                 }).ToArray();
+        }
+
+        private FileInfo[] GetAllMigrationFiles(string path)
+        {
+            var migrationsDirectory = new DirectoryInfo(path);
+            return migrationsDirectory.GetFiles("*.sql", SearchOption.TopDirectoryOnly).ToArray();
         }
     }
 }

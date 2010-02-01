@@ -5,7 +5,7 @@ About
 --------------
 
 Author: joseph@cridion.com
-Version: 1.0
+Version: 1.1
 Website: http://github.com/jdaigle/SqlPatch
 
 This is small utility provides the ability to apply T-SQL based patches or
@@ -16,6 +16,10 @@ SQL database schema.
 Change History
 --------------
 
+Version 1.1 (Feb 1, 2010)
+- Added a primary key to the schema_info table upon initial creation (does not upgrade existing table)
+- Added support for SQL View and Stored Procedure generation (DROP/CREATE)
+
 Version 1.0 (Oct 4, 2009)
 - Initial Release
 
@@ -25,12 +29,14 @@ How to use
 
 The executable accepts the following command line arguments:
 
-/m PATH			Migration Directory Path
-/s SERVER		SQL Server Network Address
-/d DATABASE		SQL Server Database Name
-/i				Integrated SQL Server Security
-/u USERNAME		SQL Server Login Username
-/p PASSWORD		SQL Server Login Password
+/m  PATH			Migration Directory Path
+/vw  PATH			Views Directory Path
+/sp  PATH			Stored Procedures Directory Path
+/s  SERVER		SQL Server Network Address
+/d  DATABASE		SQL Server Database Name
+/i 	     			Integrated SQL Server Security
+/u  USERNAME		SQL Server Login Username
+/p  PASSWORD		SQL Server Login Password
 
 When you use the "/i" argument you do not need to specify the username or
 password.
@@ -38,8 +44,11 @@ password.
 Examples:
 
 SqlPatch.exe /m \Migrations /s .\SQLEXPRESS /d Northwind /i
+SqlPatch.exe /m \Migrations /sp \sprocs /vw \views /s .\SQLEXPRESS /d Northwind /i
 SqlPatch.exe /m \Migrations /s .\SQLEXPRESS /d Northwind /u sa /p pa55w0rd
 SqlPatch.exe /m "c:\Example Folder\Migrations" /s .\SQLEXPRESS /d Northwind /i
+
+Migration Change Scripts:
 
 Each T-SQL patch can represent a single database change. These are executed in a
 specific order determined by the filename convention:
@@ -70,7 +79,8 @@ against the database. The table has the following schema:
 
 CREATE TABLE schema_info ( 
 	version int NOT NULL, 
-	migration_script varchar(255) NOT NULL
+	migration_script varchar(255) NOT NULL, 
+	CONSTRAINT [PK_schema_info] PRIMARY KEY CLUSTERED ( [version])
 	)
 	
 The first column contains the integer of the migration/patch that was run, and the
