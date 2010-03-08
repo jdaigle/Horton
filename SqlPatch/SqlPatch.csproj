@@ -70,16 +70,16 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Sprocs\CustOrderHist.sql">
+    <None Include="Scripts\Sprocs\CustOrderHist.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Sprocs\CustOrdersDetail.sql">
+    <None Include="Scripts\Sprocs\CustOrdersDetail.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Views\Alphabetical_list_of_products.sql">
+    <None Include="Scripts\Views\Alphabetical_list_of_products.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="Views\Category_Sales_for_1997.sql">
+    <None Include="Scripts\Views\Category_Sales_for_1997.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

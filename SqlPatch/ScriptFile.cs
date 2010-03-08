@@ -4,9 +4,10 @@ using System.IO;
 namespace SqlPatch {
     public class ScriptFile : IScript {
 
-        public ScriptFile(string filePath, string fileName) {
+        public ScriptFile(string filePath, string fileName, ScriptType type) {
             FilePath = filePath;
             FileName = fileName;
+            Type = type;
         }
 
         public string FilePath { get; private set; }
@@ -15,6 +16,7 @@ namespace SqlPatch {
         public Guid ContentHash { get; private set; }
         public string FileName { get; private set; }
         public string Content { get; private set; }
+        public ScriptType Type { get; private set; }
 
         public void Load() {
             Id = FileName.MD5Hash();

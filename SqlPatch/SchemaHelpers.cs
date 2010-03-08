@@ -18,7 +18,7 @@ namespace SqlPatch {
 
         public static void EnsureSchemaInfoTable() {
             var query = "SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_TYPE='BASE TABLE' AND TABLE_NAME='schema_info'";
-            var createtable = "CREATE TABLE schema_info ( id uniqueidentifier NOT NULL, contentHash uniqueidentifier NOT NULL, applied datetime NOT NULL, fileName varchar(255) NULL, CONSTRAINT PK_schema_info PRIMARY KEY CLUSTERED (id) )";
+            var createtable = "CREATE TABLE schema_info ( id uniqueidentifier NOT NULL, contentHash uniqueidentifier NOT NULL, type int NOT NULL, applied datetime NOT NULL, fileName varchar(255) NULL, CONSTRAINT PK_schema_info PRIMARY KEY CLUSTERED (id) )";
             using (var connection = new SqlConnection(CreateConnectionString())) {
                 var queryCommand = new SqlCommand(query, connection);
                 connection.Open();
@@ -34,7 +34,7 @@ namespace SqlPatch {
 
         public static IList<AppliedScript> GetScripts() {
             var appliedScripts = new List<AppliedScript>();
-            var query = "SELECT id, contentHash, applied, fileName FROM schema_info ORDER BY applied ASC";
+            var query = "SELECT id, contentHash, type, applied, fileName FROM schema_info ORDER BY applied ASC";
             using (var connection = new SqlConnection(CreateConnectionString())) {
                 var queryCommand = new SqlCommand(query, connection);
                 connection.Open();
@@ -42,9 +42,10 @@ namespace SqlPatch {
                     while (reader.Read()) {
                         var id = reader.GetGuid(0);
                         var hash = reader.GetGuid(1);
-                        var applied = reader.GetDateTime(2);
-                        var fileName = reader.GetString(3);
-                        appliedScripts.Add(new AppliedScript(id, hash, applied, fileName));
+                        var type = (ScriptType)reader.GetInt32(2);
+                        var applied = reader.GetDateTime(3);
+                        var fileName = reader.GetString(4);
+                        appliedScripts.Add(new AppliedScript(id, hash, applied, fileName, type));
                     }
                 }
                 connection.Close();
@@ -53,13 +54,14 @@ namespace SqlPatch {
         }
 
         public static void InsertScript(IScript script) {
-            var insert = "INSERT INTO schema_info (id, contentHash, applied, fileName) VALUES (@P1, @P2, @P3, @P4)";
+            var insert = "INSERT INTO schema_info (id, contentHash, type, applied, fileName) VALUES (@P1, @P2, @P3, @P4, @P5)";
             using (var connection = new SqlConnection(CreateConnectionString())) {
                 var cmd = new SqlCommand(insert, connection);
                 cmd.Parameters.Add(new SqlParameter("@P1", script.Id));
                 cmd.Parameters.Add(new SqlParameter("@P2", script.ContentHash));
-                cmd.Parameters.Add(new SqlParameter("@P3", DateTime.UtcNow));
-                cmd.Parameters.Add(new SqlParameter("@P4", script.FileName));
+                cmd.Parameters.Add(new SqlParameter("@P3", (int)script.Type));
+                cmd.Parameters.Add(new SqlParameter("@P4", DateTime.UtcNow));
+                cmd.Parameters.Add(new SqlParameter("@P5", script.FileName));
                 connection.Open();
                 cmd.ExecuteNonQuery();
                 connection.Close();
