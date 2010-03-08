@@ -10,7 +10,7 @@ namespace SqlPatch {
             return regex.Split(script);
         }
 
-        public static void ExecuteMultipleLineSqlTransaction(string[] lines, SqlConnection connection, string transactionName) {
+        public static void ExecuteMultipleLineSqlTransaction(string[] lines, SqlConnection connection, string transactionName) {            
             if (connection.State != ConnectionState.Open)
                 connection.Open();
             var transaction = connection.BeginTransaction(transactionName);
@@ -24,7 +24,9 @@ namespace SqlPatch {
                             cmd.Transaction = transaction;
                             cmd.CommandText = line;
                             cmd.CommandType = CommandType.Text;
-                            cmd.ExecuteNonQuery();
+                            var rowsAffected = cmd.ExecuteNonQuery();
+                            if (rowsAffected >= 0)
+                                Logger.WriteLine(rowsAffected + " rows affected");
                         }
                     } catch (SqlException e) {
                         throw new ScriptExecutionException(line, "An error occured executing a script.", e);
