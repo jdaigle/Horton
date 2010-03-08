@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Collections;
 using System.Text;
@@ -16,14 +17,57 @@ namespace SqlPatch
                 OutputHelpMessage();
                 return;
             }
-            Console.WriteLine("\nStarting Migration\n");
-            var engine = new MigrationEngine();
-            engine.Migrate();
-            Console.WriteLine();
-            engine.BuildViews();
-            Console.WriteLine();
-            engine.BuildSprocs();
-            Console.WriteLine("\nMigration Complete\n");
+            Logger.WriteLine("\nSimple Sql Patcher version 2\n");
+
+            Logger.WriteLine("Loading script files...");
+            Logger.Indent();
+            var fileLoader = new FileLoader(Configuration.World.ScriptsDirectoryPath);
+            fileLoader.LoadAllFiles();
+            Logger.Unindent();
+            Logger.WriteLine(fileLoader.Files.Count + " scripts loaded.\n");
+            
+            Logger.WriteLine("Checking database schema...");
+            Logger.Indent();
+            SchemaHelpers.EnsureSchemaInfoTable();
+            Logger.Unindent();
+            Logger.WriteLine("Database schema check complete.\n");
+
+            Logger.WriteLine("Checking for applied scripts...");
+            Logger.Indent();
+            var appliedScripts = SchemaHelpers.GetScripts();
+            foreach (var script in appliedScripts) {
+                if (fileLoader.Files.ContainsKey(script.Id)) {
+                    var file = fileLoader.Files[script.Id];
+                    if (!file.Matches(script)) {
+                        Logger.WriteLine(string.Format("WARNING! The script {0} has changed since it was applied on {1}.", file.FileName, script.Applied.Date.ToShortDateString()));
+                        Console.WriteLine("\nTo continue, type YES at the prompt: ");
+                        if (Console.ReadLine() != "YES")
+                            Abort("User aborted due to a script file changing that was already applied.");
+                        Console.WriteLine();
+                    }
+                }
+            }
+            Logger.Unindent();
+            Logger.WriteLine("Database is ready to be patched!\n");
+
+            var applied = new HashSet<Guid>(appliedScripts.Select(x => x.Id));
+            var scripts = new List<ScriptFile>();
+            foreach (var script in fileLoader.Files) {
+                if (!applied.Contains(script.Key))
+                    scripts.Add(script.Value);
+            }
+            Logger.WriteLine("Ready to execute " + scripts.Count + " new scripts...");
+            Logger.Indent();
+            var engine = new ScriptEngine(scripts, SchemaHelpers.CreateConnectionString());
+            engine.Execute();
+            Logger.Unindent();
+            Logger.WriteLine("Process Complete.");
+        }
+
+        public static void Abort(string reason) {
+            Logger.Reset();
+            Logger.WriteLine("Process aborted: " + reason);
+            Environment.Exit(1);
         }
 
         private static void OutputHelpMessage()
@@ -32,20 +76,17 @@ namespace SqlPatch
             output.AppendLine();
             output.AppendLine("Simple Sql Patcher Command Line Arguments");
             output.AppendLine("---");
-            output.AppendLine("/m  PATH\t\tMigration Directory Path (no spaces or surrounded by quotes)");
-            output.AppendLine("/sp PATH\t\tSprocs Directory Path (no spaces or surrounded by quotes)");
-            output.AppendLine("/vw PATH\t\tViews Directory Path (no spaces or surrounded by quotes)");
-            output.AppendLine("/s  SERVER\tSQL Server Network Address");
-            output.AppendLine("/d  DATABASE\tSQL Server Database Name");
-            output.AppendLine("/i  \t\tIntegrated SQL Server Security");
-            output.AppendLine("/u  USERNAME\tSQL Server Login Username");
-            output.AppendLine("/p  PASSWORD\tSQL Server Login Password");
+            output.AppendLine("-m  PATH\t\tDatabase Scripts Directory (no spaces or surrounded by quotes)");
+            output.AppendLine("-s  SERVER\tSQL Server Network Address");
+            output.AppendLine("-d  DATABASE\tSQL Server Database Name");
+            output.AppendLine("-i  \t\tIntegrated SQL Server Security (instead of -u and -p)");
+            output.AppendLine("-u  USERNAME\tSQL Server Login Username (requires -p)");
+            output.AppendLine("-p   PASSWORD\tSQL Server Login Password");
             output.AppendLine();
             output.AppendLine("EXAMPLES:");
-            output.AppendLine(@"SqlPatch.exe /m \Migrations /s .\SQLEXPRESS /d Northwind /i");
-            output.AppendLine(@"SqlPatch.exe /m \Migrations /sp \sprocs /vw \views /s .\SQLEXPRESS /d Northwind /i");
-            output.AppendLine(@"SqlPatch.exe /m \Migrations /s .\SQLEXPRESS /d Northwind /u sa /p pa55w0rd");
-            output.AppendLine("SqlPatch.exe /m \"c:\\Example Folder\\Migrations\" /s .\\SQLEXPRESS /d Northwind /i");
+            output.AppendLine(@"SqlPatch.exe -m \Scripts -s .\SQLEXPRESS -d Northwind -i");
+            output.AppendLine(@"SqlPatch.exe -m \Scripts -s .\SQLEXPRESS -d Northwind -u sa -p pa55w0rd");
+            output.AppendLine("SqlPatch.exe -m \"c:\\Example Folder\\Scripts\" -s .\\SQLEXPRESS -d Northwind -i");
             output.AppendLine();
             Console.Out.WriteLine(output.ToString());
         }
@@ -58,47 +99,47 @@ namespace SqlPatch
             {
                 bool lastArg = i == args.Length - 1;
                 var argument = args[i];
-                if (argument.Equals("/m", StringComparison.OrdinalIgnoreCase))
+                if (argument.Equals("-m", StringComparison.OrdinalIgnoreCase))
                 {
                     if (lastArg)
                         return false;
-                    Configuration.World.MigrationDirectoryPath = args[i + 1];
+                    Configuration.World.ScriptsDirectoryPath = args[i + 1];
                 }
-                if (argument.Equals("/sp", StringComparison.OrdinalIgnoreCase))
+                if (argument.Equals("-sp", StringComparison.OrdinalIgnoreCase))
                 {
                     if (lastArg)
                         return false;
                     Configuration.World.SprocsDirectoryPath = args[i + 1];
                 }
-                if (argument.Equals("/vw", StringComparison.OrdinalIgnoreCase))
+                if (argument.Equals("-vw", StringComparison.OrdinalIgnoreCase))
                 {
                     if (lastArg)
                         return false;
                     Configuration.World.ViewsDirectoryPath = args[i + 1];
                 }
-                else if (argument.Equals("/s", StringComparison.OrdinalIgnoreCase))
+                else if (argument.Equals("-s", StringComparison.OrdinalIgnoreCase))
                 {
                     if (lastArg)
                         return false;
                     Configuration.World.Server = args[i + 1];
                 }
-                else if (argument.Equals("/d", StringComparison.OrdinalIgnoreCase))
+                else if (argument.Equals("-d", StringComparison.OrdinalIgnoreCase))
                 {
                     if (lastArg)
                         return false;
                     Configuration.World.Database = args[i + 1];
                 }
-                else if (argument.Equals("/i", StringComparison.OrdinalIgnoreCase))
+                else if (argument.Equals("-i", StringComparison.OrdinalIgnoreCase))
                 {
                     Configuration.World.IntegratedSecurity = true;
                 }
-                else if (argument.Equals("/u", StringComparison.OrdinalIgnoreCase))
+                else if (argument.Equals("-u", StringComparison.OrdinalIgnoreCase))
                 {
                     if (lastArg)
                         return false;
                     Configuration.World.Username = args[i + 1];
                 }
-                else if (argument.Equals("/p", StringComparison.OrdinalIgnoreCase))
+                else if (argument.Equals("-p", StringComparison.OrdinalIgnoreCase))
                 {
                     if (lastArg)
                         return false;

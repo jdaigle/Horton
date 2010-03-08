@@ -30,7 +30,7 @@ namespace SqlPatch
         public string Username { get; set; }
         public string Password { get; set; }
 
-        public string MigrationDirectoryPath { get; set; }
+        public string ScriptsDirectoryPath { get; set; }
         public string ViewsDirectoryPath { get; set; }
         public string SprocsDirectoryPath { get; set; }
 
@@ -38,7 +38,7 @@ namespace SqlPatch
         {
             get
             {
-                return !string.IsNullOrEmpty(MigrationDirectoryPath) &&
+                return !string.IsNullOrEmpty(ScriptsDirectoryPath) &&
                        !string.IsNullOrEmpty(Server) &&
                        !string.IsNullOrEmpty(Database) &&
                        (IntegratedSecurity || (!string.IsNullOrEmpty(Username) && 
@@ -51,7 +51,7 @@ namespace SqlPatch
             var output = new StringBuilder();
             output.AppendLine("World Configuration");
             output.AppendLine("---");
-            output.AppendLine("Migration Directory Path: [" + MigrationDirectoryPath + "]");
+            output.AppendLine("Script Directory Path: [" + ScriptsDirectoryPath + "]");
             if (!string.IsNullOrEmpty(ViewsDirectoryPath))
                 output.AppendLine("Views Directory Path: [" + ViewsDirectoryPath + "]");
             if (!string.IsNullOrEmpty(SprocsDirectoryPath))

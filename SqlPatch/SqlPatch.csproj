@@ -45,23 +45,27 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AppliedScript.cs" />
     <Compile Include="Configuration.cs" />
-    <Compile Include="Migration.cs" />
-    <Compile Include="MigrationEngine.cs" />
-    <Compile Include="MigrationException.cs" />
+    <Compile Include="FileLoader.cs" />
+    <Compile Include="HashExtensions.cs" />
+    <Compile Include="IScript.cs" />
+    <Compile Include="Logger.cs" />
+    <Compile Include="ScriptEngine.cs" />
+    <Compile Include="ScriptExecutionException.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SchemaHelpers.cs" />
+    <Compile Include="ScriptFile.cs" />
     <Compile Include="SqlHelpers.cs" />
-    <Compile Include="SqlMigration.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Migrations\001_CreateTables.sql">
+    <Content Include="Scripts\001_CreateTables.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Migrations\002_CreateTable.sql">
+    <Content Include="Scripts\002_CreateTable.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
