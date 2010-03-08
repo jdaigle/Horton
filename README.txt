@@ -5,7 +5,7 @@ About
 --------------
 
 Author: joseph@cridion.com
-Version: 1.1
+Version: 2.0
 Website: http://github.com/jdaigle/SqlPatch
 
 This is small utility provides the ability to apply T-SQL based patches or
@@ -15,6 +15,9 @@ SQL database schema.
 --------------
 Change History
 --------------
+
+Version 2.0 (March 8, 2010)
+ - Complete rewrite... major breaking changes.
 
 Version 1.1 (Feb 1, 2010)
 - Added a primary key to the schema_info table upon initial creation (does not upgrade existing table)
@@ -29,24 +32,22 @@ How to use
 
 The executable accepts the following command line arguments:
 
-/m  PATH			Migration Directory Path
-/vw  PATH			Views Directory Path
-/sp  PATH			Stored Procedures Directory Path
-/s  SERVER		SQL Server Network Address
-/d  DATABASE		SQL Server Database Name
-/i 	     			Integrated SQL Server Security
-/u  USERNAME		SQL Server Login Username
-/p  PASSWORD		SQL Server Login Password
+-m  PATH			Migration Directory Path
+-s  SERVER		    SQL Server Network Address
+-d  DATABASE		SQL Server Database Name
+-i 	     			Integrated SQL Server Security
+-u  USERNAME		SQL Server Login Username
+-p  PASSWORD		SQL Server Login Password
+-a                  Unattended process (useful for integration environments)
 
-When you use the "/i" argument you do not need to specify the username or
+When you use the "-i" argument you do not need to specify the username or
 password.
 
 Examples:
 
-SqlPatch.exe /m \Migrations /s .\SQLEXPRESS /d Northwind /i
-SqlPatch.exe /m \Migrations /sp \sprocs /vw \views /s .\SQLEXPRESS /d Northwind /i
-SqlPatch.exe /m \Migrations /s .\SQLEXPRESS /d Northwind /u sa /p pa55w0rd
-SqlPatch.exe /m "c:\Example Folder\Migrations" /s .\SQLEXPRESS /d Northwind /i
+SqlPatch.exe -m Scripts -s .\SQLEXPRESS -d Northwind -i
+SqlPatch.exe -m Scripts -s .\SQLEXPRESS -d Northwind -u sa -p pa55w0rd
+SqlPatch.exe -m "c:\Example Folder\Scripts" -s .\SQLEXPRESS -d Northwind -i
 
 Migration Change Scripts:
 
@@ -74,22 +75,18 @@ The T-SQL should generally follow these rules:
 4. (Optional) the script should be able to run multiple times with side-effects
 
 The utility will create a table in the target database if it doesn't exist which
-will contain information about what migrations/patches have already been run
-against the database. The table has the following schema:
+will contain information about what patches have already been run
+against the database.
 
-CREATE TABLE schema_info ( 
-	version int NOT NULL, 
-	migration_script varchar(255) NOT NULL, 
-	CONSTRAINT [PK_schema_info] PRIMARY KEY CLUSTERED ( [version])
-	)
-	
-The first column contains the integer of the migration/patch that was run, and the
-second column contains the file-name of the migration/patch that was run.
+When the utility executes against the database it queries the schema_info stored in
+database. It will first warn about any change scripts that have change since it was
+run against the database. It will then run any scripts that haven't been run, logging
+as it goes.
 
-When the utility executes against the database, it queries for the last (version with
-greatest integer value) migration/patch run. It will then run any migration/patches
-found in the migration directory which are greater than that value. As each
-script executes it is stored in the schema_info table.
+You can optionally create directories under your scripts folder called "views" and
+"sprocs". The tool will detect these directories as special database object directories.
+Any scripts in these directories will be run by the tool anytime a change is detected 
+(and of course if the script has never been run against the database).
 
-Each migration/patch is executed within a transaction. If for any reason it fails,
+Each script is executed within a transaction. If for any reason it fails,
 the transaction is rolled-back and the process is aborted.

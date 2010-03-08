@@ -17,7 +17,7 @@ namespace SqlPatch
                 OutputHelpMessage();
                 return;
             }
-            Logger.WriteLine("\nSimple Sql Patcher version 2\n");
+            Logger.WriteLine("Simple Sql Patcher version 2\n");
 
             Logger.WriteLine("Loading script files...");
             Logger.Indent();
@@ -34,16 +34,23 @@ namespace SqlPatch
 
             Logger.WriteLine("Checking for applied scripts...");
             Logger.Indent();
+            var changedDatabaseObjects = new List<ScriptFile>();
             var appliedScripts = SchemaHelpers.GetScripts();
             foreach (var script in appliedScripts) {
                 if (fileLoader.Files.ContainsKey(script.Id)) {
                     var file = fileLoader.Files[script.Id];
                     if (!file.Matches(script)) {
-                        Logger.WriteLine(string.Format("WARNING! The script {0} has changed since it was applied on {1}.", file.FileName, script.Applied.Date.ToShortDateString()));
-                        Console.WriteLine("\nTo continue, type YES at the prompt: ");
-                        if (Console.ReadLine() != "YES")
-                            Abort("User aborted due to a script file changing that was already applied.");
-                        Console.WriteLine();
+                        if (file.Type == ScriptType.ChangeScript) {
+                            Logger.WriteLine(string.Format("WARNING! The script {0} has changed since it was applied on {1}.", file.FileName, script.Applied.Date.ToShortDateString()));
+                            if (!Configuration.World.Unattended) {
+                                Console.WriteLine("\nTo continue, type YES at the prompt: ");
+                                if (Console.ReadLine() != "YES")
+                                    Abort("User aborted due to a script file changing that was already applied.");
+                                Console.WriteLine();
+                            }
+                        } else {
+                            changedDatabaseObjects.Add(file);
+                        }
                     }
                 }
             }
@@ -56,6 +63,7 @@ namespace SqlPatch
                 if (!applied.Contains(script.Key))
                     scripts.Add(script.Value);
             }
+            scripts.AddRange(changedDatabaseObjects);
             Logger.WriteLine("Ready to execute " + scripts.Count + " new scripts...");
             Logger.Indent();
             var engine = new ScriptEngine(scripts, SchemaHelpers.CreateConnectionString());
@@ -81,11 +89,12 @@ namespace SqlPatch
             output.AppendLine("-d  DATABASE\tSQL Server Database Name");
             output.AppendLine("-i  \t\tIntegrated SQL Server Security (instead of -u and -p)");
             output.AppendLine("-u  USERNAME\tSQL Server Login Username (requires -p)");
-            output.AppendLine("-p   PASSWORD\tSQL Server Login Password");
+            output.AppendLine("-p  PASSWORD\tSQL Server Login Password");
+            output.AppendLine("-a  \t\tUnattended process (useful for integration environments)");
             output.AppendLine();
             output.AppendLine("EXAMPLES:");
-            output.AppendLine(@"SqlPatch.exe -m \Scripts -s .\SQLEXPRESS -d Northwind -i");
-            output.AppendLine(@"SqlPatch.exe -m \Scripts -s .\SQLEXPRESS -d Northwind -u sa -p pa55w0rd");
+            output.AppendLine(@"SqlPatch.exe -m Scripts -s .\SQLEXPRESS -d Northwind -i");
+            output.AppendLine(@"SqlPatch.exe -m Scripts -s .\SQLEXPRESS -d Northwind -u sa -p pa55w0rd");
             output.AppendLine("SqlPatch.exe -m \"c:\\Example Folder\\Scripts\" -s .\\SQLEXPRESS -d Northwind -i");
             output.AppendLine();
             Console.Out.WriteLine(output.ToString());
@@ -105,18 +114,6 @@ namespace SqlPatch
                         return false;
                     Configuration.World.ScriptsDirectoryPath = args[i + 1];
                 }
-                if (argument.Equals("-sp", StringComparison.OrdinalIgnoreCase))
-                {
-                    if (lastArg)
-                        return false;
-                    Configuration.World.SprocsDirectoryPath = args[i + 1];
-                }
-                if (argument.Equals("-vw", StringComparison.OrdinalIgnoreCase))
-                {
-                    if (lastArg)
-                        return false;
-                    Configuration.World.ViewsDirectoryPath = args[i + 1];
-                }
                 else if (argument.Equals("-s", StringComparison.OrdinalIgnoreCase))
                 {
                     if (lastArg)
@@ -132,6 +129,9 @@ namespace SqlPatch
                 else if (argument.Equals("-i", StringComparison.OrdinalIgnoreCase))
                 {
                     Configuration.World.IntegratedSecurity = true;
+                } 
+                else if (argument.Equals("-a", StringComparison.OrdinalIgnoreCase)) {
+                    Configuration.World.Unattended = true;
                 }
                 else if (argument.Equals("-u", StringComparison.OrdinalIgnoreCase))
                 {

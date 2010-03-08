@@ -54,9 +54,10 @@ namespace SqlPatch {
         }
 
         public static void InsertScript(IScript script) {
-            var insert = "INSERT INTO schema_info (id, contentHash, type, applied, fileName) VALUES (@P1, @P2, @P3, @P4, @P5)";
+            var upsert = "UPDATE schema_info SET contentHash = @P2, applied = @P4 WHERE id = @P1 " +
+                         "IF @@ROWCOUNT = 0 INSERT INTO schema_info (id, contentHash, type, applied, fileName) VALUES (@P1, @P2, @P3, @P4, @P5)";
             using (var connection = new SqlConnection(CreateConnectionString())) {
-                var cmd = new SqlCommand(insert, connection);
+                var cmd = new SqlCommand(upsert, connection);
                 cmd.Parameters.Add(new SqlParameter("@P1", script.Id));
                 cmd.Parameters.Add(new SqlParameter("@P2", script.ContentHash));
                 cmd.Parameters.Add(new SqlParameter("@P3", (int)script.Type));

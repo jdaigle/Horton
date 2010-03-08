@@ -3,4 +3,4 @@ CREATE TABLE [dbo].[ProductsEx] (
 	[Name] [varchar](50) NOT NULL,
 	[Inventory] [int] NOT NULL,
 	[Notes] [text] NULL,
-)
+) 

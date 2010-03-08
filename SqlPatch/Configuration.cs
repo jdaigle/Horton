@@ -31,8 +31,7 @@ namespace SqlPatch
         public string Password { get; set; }
 
         public string ScriptsDirectoryPath { get; set; }
-        public string ViewsDirectoryPath { get; set; }
-        public string SprocsDirectoryPath { get; set; }
+        public bool Unattended { get; set; }
 
         public bool IsValid
         {
@@ -52,10 +51,6 @@ namespace SqlPatch
             output.AppendLine("World Configuration");
             output.AppendLine("---");
             output.AppendLine("Script Directory Path: [" + ScriptsDirectoryPath + "]");
-            if (!string.IsNullOrEmpty(ViewsDirectoryPath))
-                output.AppendLine("Views Directory Path: [" + ViewsDirectoryPath + "]");
-            if (!string.IsNullOrEmpty(SprocsDirectoryPath))
-                output.AppendLine("SProcs Directory Path: [" + SprocsDirectoryPath + "]");
             output.AppendLine("Server: [" + Server + "]");
             output.AppendLine("Database: [" + Database + "]");
             output.AppendLine("Integrated Security: [" + (IntegratedSecurity ? "Yes" : "No") + "]");
