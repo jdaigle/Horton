@@ -12,64 +12,79 @@ namespace SqlPatch
 
         public static void Main(string[] args)
         {
-            if (!ParseCommandLineArgs(args))
-            {
-                OutputHelpMessage();
-                return;
-            }
-            Logger.WriteLine("Simple Sql Patcher version 2\n");
+            try {
+                if (!ParseCommandLineArgs(args)) {
+                    OutputHelpMessage();
+                    return;
+                }
+                Logger.WriteLine("Simple Sql Patcher version 2\n");
 
-            Logger.WriteLine("Loading script files...");
-            Logger.Indent();
-            var fileLoader = new FileLoader(Configuration.World.ScriptsDirectoryPath);
-            fileLoader.LoadAllFiles();
-            Logger.Unindent();
-            Logger.WriteLine(fileLoader.Files.Count + " scripts loaded.\n");
-            
-            Logger.WriteLine("Checking database schema...");
-            Logger.Indent();
-            SchemaHelpers.EnsureSchemaInfoTable();
-            Logger.Unindent();
-            Logger.WriteLine("Database schema check complete.\n");
+                Logger.WriteLine("Loading script files...");
+                Logger.Indent();
+                var fileLoader = new FileLoader(Configuration.World.ScriptsDirectoryPath);
+                fileLoader.LoadAllFiles();
+                Logger.Unindent();
+                Logger.WriteLine(fileLoader.Files.Count + " scripts loaded.\n");
 
-            Logger.WriteLine("Checking for applied scripts...");
-            Logger.Indent();
-            var changedDatabaseObjects = new List<ScriptFile>();
-            var appliedScripts = SchemaHelpers.GetScripts();
-            foreach (var script in appliedScripts) {
-                if (fileLoader.Files.ContainsKey(script.Id)) {
-                    var file = fileLoader.Files[script.Id];
-                    if (!file.Matches(script)) {
-                        if (file.Type == ScriptType.ChangeScript) {
-                            Logger.WriteLine(string.Format("WARNING! The script {0} has changed since it was applied on {1}.", file.FileName, script.Applied.Date.ToShortDateString()));
-                            if (!Configuration.World.Unattended) {
-                                Console.WriteLine("\nTo continue, type YES at the prompt: ");
-                                if (Console.ReadLine() != "YES")
-                                    Abort("User aborted due to a script file changing that was already applied.");
-                                Console.WriteLine();
+                Logger.WriteLine("Checking database schema...");
+                Logger.Indent();
+                SchemaHelpers.EnsureSchemaInfoTable();
+                Logger.Unindent();
+                Logger.WriteLine("Database schema check complete.\n");
+
+                Logger.WriteLine("Checking for applied scripts...");
+                Logger.Indent();
+                var changedDatabaseObjects = new List<ScriptFile>();
+                var appliedScripts = SchemaHelpers.GetScripts();
+                foreach (var script in appliedScripts) {
+                    if (fileLoader.Files.ContainsKey(script.Id)) {
+                        var file = fileLoader.Files[script.Id];
+                        if (!file.Matches(script)) {
+                            if (file.Type == ScriptType.ChangeScript) {
+                                Logger.WriteLine(string.Format("WARNING! The script {0} has changed since it was applied on {1}.", file.FileName, script.Applied.Date.ToShortDateString()));
+                                if (!Configuration.World.Unattended) {
+                                    Console.WriteLine("\nTo continue, type YES at the prompt: ");
+                                    if (Console.ReadLine() != "YES")
+                                        Abort("User aborted due to a script file changing that was already applied.");
+                                    Console.WriteLine();
+                                }
+                            } else {
+                                changedDatabaseObjects.Add(file);
                             }
-                        } else {
-                            changedDatabaseObjects.Add(file);
                         }
                     }
                 }
-            }
-            Logger.Unindent();
-            Logger.WriteLine("Database is ready to be patched!\n");
+                Logger.Unindent();
+                Logger.WriteLine("Database is ready to be patched!\n");
 
-            var applied = new HashSet<Guid>(appliedScripts.Select(x => x.Id));
-            var scripts = new List<ScriptFile>();
-            foreach (var script in fileLoader.Files) {
-                if (!applied.Contains(script.Key))
-                    scripts.Add(script.Value);
+                var applied = new HashSet<Guid>(appliedScripts.Select(x => x.Id));
+                var scripts = new List<ScriptFile>();
+                foreach (var script in fileLoader.Files) {
+                    if (!applied.Contains(script.Key))
+                        scripts.Add(script.Value);
+                }
+                scripts.AddRange(changedDatabaseObjects);
+                Logger.WriteLine("Ready to execute " + scripts.Count + " new scripts...");
+                Logger.Indent();
+                var engine = new ScriptEngine(scripts, SchemaHelpers.CreateConnectionString());
+                engine.Execute();
+                Logger.Unindent();
+                Logger.WriteLine("Process Complete.");
+            } catch (Exception e) {
+                Logger.WriteLine("THERE WAS AN ERROR!");
+                Logger.WriteLine(string.Empty);
+                Logger.WriteLine(e.Message);
+                Logger.WriteLine(string.Empty);
+                Logger.WriteLine(e.StackTrace);
+                var innerExcepton = e.InnerException;
+                while (innerExcepton != null) {
+                    Logger.WriteLine(string.Empty);
+                    Logger.WriteLine(innerExcepton.Message);
+                    Logger.WriteLine(string.Empty);
+                    Logger.WriteLine(innerExcepton.StackTrace);
+                    innerExcepton = innerExcepton.InnerException;
+                }
             }
-            scripts.AddRange(changedDatabaseObjects);
-            Logger.WriteLine("Ready to execute " + scripts.Count + " new scripts...");
-            Logger.Indent();
-            var engine = new ScriptEngine(scripts, SchemaHelpers.CreateConnectionString());
-            engine.Execute();
-            Logger.Unindent();
-            Logger.WriteLine("Process Complete.");
         }
 
         public static void Abort(string reason) {
