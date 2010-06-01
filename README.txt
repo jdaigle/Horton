@@ -39,6 +39,7 @@ The executable accepts the following command line arguments:
 -u  USERNAME		SQL Server Login Username
 -p  PASSWORD		SQL Server Login Password
 -a                  Unattended process (useful for integration environments)
+-t          Runs the tool in testing mode (only displays the scripts that will change, does not execute them)
 
 When you use the "-i" argument you do not need to specify the username or
 password.

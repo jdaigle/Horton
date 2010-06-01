@@ -28,5 +28,11 @@ namespace SqlPatch {
                 Logger.WriteLine("Success!");
             }
         }
+
+        public void DontExecute() {
+            foreach (var script in scripts) {
+                Logger.WriteLine("I would have executed: " + script.FileName + " (" + script.Id.ToString() + ")");
+            }
+        }
     }
 }
