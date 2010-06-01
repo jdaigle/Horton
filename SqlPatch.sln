@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 10.00
-# Visual Studio 2008
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SqlPatch", "SqlPatch\SqlPatch.csproj", "{3DBCBF15-46AC-4DD7-92FD-BF09230A0997}"
 EndProject
 Global
