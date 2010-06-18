@@ -67,9 +67,9 @@ namespace SqlPatch
                 Logger.WriteLine("Ready to execute " + scripts.Count + " new scripts...");
                 Logger.Indent();
                 var engine = new ScriptEngine(scripts, SchemaHelpers.CreateConnectionString());
-                if (!Configuration.World.TestMode)
+                if (Configuration.World.Apply)
                     engine.Execute();
-                else if (Configuration.World.TestMode)
+                else if (!Configuration.World.Apply)
                     engine.DontExecute();
                 Logger.Unindent();
                 Logger.WriteLine("Process Complete.");
@@ -109,7 +109,7 @@ namespace SqlPatch
             output.AppendLine("-u  USERNAME\tSQL Server Login Username (requires -p)");
             output.AppendLine("-p  PASSWORD\tSQL Server Login Password");
             output.AppendLine("-a  \t\tUnattended process (useful for integration environments)");
-            output.AppendLine("-t  \t\tOnly displays scripts that will be run, but doesn't actually run them.");
+            output.AppendLine("-f  \t\tActually runs the script.");
             output.AppendLine();
             output.AppendLine("EXAMPLES:");
             output.AppendLine(@"SqlPatch.exe -m Scripts -s .\SQLEXPRESS -d Northwind -i");
@@ -163,10 +163,10 @@ namespace SqlPatch
                     if (lastArg)
                         return false;
                     Configuration.World.Password = args[i + 1];
-                } else if (argument.Equals("-t", StringComparison.OrdinalIgnoreCase)) {
+                } else if (argument.Equals("-f", StringComparison.OrdinalIgnoreCase)) {
                     if (lastArg)
                         return false;
-                    Configuration.World.TestMode = true;
+                    Configuration.World.Apply = true;
                 }
             }
             return Configuration.World.IsValid;

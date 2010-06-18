@@ -29,7 +29,7 @@ namespace SqlPatch
         public bool IntegratedSecurity { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
-        public bool TestMode { get; set; }
+        public bool Apply { get; set; }
 
         public string ScriptsDirectoryPath { get; set; }
         public bool Unattended { get; set; }
