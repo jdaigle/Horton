@@ -12,8 +12,10 @@ namespace SqlPatch
 
         public static void Main(string[] args)
         {
-            try {
-                if (!ParseCommandLineArgs(args)) {
+            try
+            {
+                if (!ParseCommandLineArgs(args))
+                {
                     OutputHelpMessage();
                     return;
                 }
@@ -36,19 +38,30 @@ namespace SqlPatch
                 Logger.Indent();
                 var changedDatabaseObjects = new List<ScriptFile>();
                 var appliedScripts = SchemaHelpers.GetScripts();
-                foreach (var script in appliedScripts) {
-                    if (fileLoader.Files.ContainsKey(script.Id)) {
+                // This loop contains horrors that cannot be unseen, one day I'll be brave enough to refactor it
+                foreach (var script in appliedScripts)
+                {
+                    if (fileLoader.Files.ContainsKey(script.Id))
+                    {
                         var file = fileLoader.Files[script.Id];
-                        if (!file.Matches(script)) {
-                            if (file.Type == ScriptType.ChangeScript) {
+                        if (!file.Matches(script))
+                        {
+                            if (file.Type == ScriptType.ChangeScript)
+                            {
                                 Logger.WriteLine(string.Format("WARNING! The script {0} has changed since it was applied on {1}.", file.FileName, script.Applied.Date.ToShortDateString()));
-                                if (!Configuration.World.Unattended) {
-                                    Console.WriteLine("\nTo continue, type YES at the prompt: ");
-                                    if (Console.ReadLine() != "YES")
+                                if (!Configuration.World.Unattended)
+                                {
+                                    Console.WriteLine("\nTo run the script again type RERUN. To continue without running type CONTINUE at the prompt: ");
+                                    var option = Console.ReadLine();
+                                    if (option == "RERUN")
+                                        changedDatabaseObjects.Add(file);
+                                    else if (option != "CONTINUE")
                                         Abort("User aborted due to a script file changing that was already applied.");
                                     Console.WriteLine();
                                 }
-                            } else {
+                            }
+                            else
+                            {
                                 changedDatabaseObjects.Add(file);
                             }
                         }
@@ -59,7 +72,8 @@ namespace SqlPatch
 
                 var applied = new HashSet<Guid>(appliedScripts.Select(x => x.Id));
                 var scripts = new List<ScriptFile>();
-                foreach (var script in fileLoader.Files) {
+                foreach (var script in fileLoader.Files)
+                {
                     if (!applied.Contains(script.Key))
                         scripts.Add(script.Value);
                 }
@@ -73,14 +87,17 @@ namespace SqlPatch
                     engine.DontExecute();
                 Logger.Unindent();
                 Logger.WriteLine("Process Complete.");
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 Logger.WriteLine("THERE WAS AN ERROR!");
                 Logger.WriteLine(string.Empty);
                 Logger.WriteLine(e.Message);
                 Logger.WriteLine(string.Empty);
                 Logger.WriteLine(e.StackTrace);
                 var innerExcepton = e.InnerException;
-                while (innerExcepton != null) {
+                while (innerExcepton != null)
+                {
                     Logger.WriteLine(string.Empty);
                     Logger.WriteLine(innerExcepton.Message);
                     Logger.WriteLine(string.Empty);
@@ -90,7 +107,8 @@ namespace SqlPatch
             }
         }
 
-        public static void Abort(string reason) {
+        public static void Abort(string reason)
+        {
             Logger.Reset();
             Logger.WriteLine("Process aborted: " + reason);
             Environment.Exit(1);
@@ -148,8 +166,9 @@ namespace SqlPatch
                 else if (argument.Equals("-i", StringComparison.OrdinalIgnoreCase))
                 {
                     Configuration.World.IntegratedSecurity = true;
-                } 
-                else if (argument.Equals("-a", StringComparison.OrdinalIgnoreCase)) {
+                }
+                else if (argument.Equals("-a", StringComparison.OrdinalIgnoreCase))
+                {
                     Configuration.World.Unattended = true;
                 }
                 else if (argument.Equals("-u", StringComparison.OrdinalIgnoreCase))
@@ -163,9 +182,9 @@ namespace SqlPatch
                     if (lastArg)
                         return false;
                     Configuration.World.Password = args[i + 1];
-                } else if (argument.Equals("-f", StringComparison.OrdinalIgnoreCase)) {
-                    if (lastArg)
-                        return false;
+                }
+                else if (argument.Equals("-f", StringComparison.OrdinalIgnoreCase))
+                {
                     Configuration.World.Apply = true;
                 }
             }
