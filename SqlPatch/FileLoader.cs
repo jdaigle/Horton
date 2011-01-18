@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
-namespace SqlPatch {
+namespace SqlDeploy {
     public class FileLoader {
 
         private readonly string path;
@@ -17,8 +17,6 @@ namespace SqlPatch {
 
         public void LoadAllFiles() {
             LoadChangeScripts();
-            LoadDatabaseObjects("views\\");
-            LoadDatabaseObjects("sprocs\\");
         }
 
         private void LoadChangeScripts() {
@@ -26,16 +24,6 @@ namespace SqlPatch {
             var files = scripts.GetFiles("*.sql", SearchOption.TopDirectoryOnly).OrderBy(x => {
                 return Int32.Parse(x.Name.Substring(0, x.Name.IndexOf('_')));
             }).Select(x => new ScriptFile(x.FullName, x.Name, ScriptType.ChangeScript)).ToList();
-            foreach (var file in files) {
-                file.Load();
-                Files.Add(file.Id, file);
-            }
-        }
-
-        private void LoadDatabaseObjects(string subdirectory) {
-            var scripts = new DirectoryInfo(Path.Combine(path, subdirectory));
-            var files = scripts.GetFiles("*.sql", SearchOption.TopDirectoryOnly)
-                .Select(x => new ScriptFile(x.FullName, x.Name, ScriptType.DatabaseObject)).ToList();
             foreach (var file in files) {
                 file.Load();
                 Files.Add(file.Id, file);

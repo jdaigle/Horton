@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SqlPatch {
+namespace SqlDeploy {
     public class ScriptExecutionException : Exception {
         
         public string Command { get; private set; }

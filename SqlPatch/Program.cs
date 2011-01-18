@@ -5,7 +5,7 @@ using System.Collections;
 using System.Text;
 using System.IO;
 
-namespace SqlPatch
+namespace SqlDeploy
 {
     public class Program
     {
@@ -19,7 +19,7 @@ namespace SqlPatch
                     OutputHelpMessage();
                     return;
                 }
-                Logger.WriteLine("Simple Sql Patcher version 2\n");
+                Logger.WriteLine("Sql Deploy version 3\n");
 
                 Logger.WriteLine("Loading script files...");
                 Logger.Indent();
@@ -36,7 +36,6 @@ namespace SqlPatch
 
                 Logger.WriteLine("Checking for applied scripts...");
                 Logger.Indent();
-                var changedDatabaseObjects = new List<ScriptFile>();
                 var appliedScripts = SchemaHelpers.GetScripts();
                 // This loop contains horrors that cannot be unseen, one day I'll be brave enough to refactor it
                 foreach (var script in appliedScripts)
@@ -46,23 +45,14 @@ namespace SqlPatch
                         var file = fileLoader.Files[script.Id];
                         if (!file.Matches(script))
                         {
-                            if (file.Type == ScriptType.ChangeScript)
+                            Logger.WriteLine(string.Format("WARNING! The script {0} has changed since it was applied on {1}.", file.FileName, script.Applied.Date.ToShortDateString()));
+                            if (!Configuration.World.Unattended)
                             {
-                                Logger.WriteLine(string.Format("WARNING! The script {0} has changed since it was applied on {1}.", file.FileName, script.Applied.Date.ToShortDateString()));
-                                if (!Configuration.World.Unattended)
-                                {
-                                    Console.WriteLine("\nTo run the script again type RERUN. To continue without running type CONTINUE at the prompt: ");
-                                    var option = Console.ReadLine();
-                                    if (option == "RERUN")
-                                        changedDatabaseObjects.Add(file);
-                                    else if (option != "CONTINUE")
-                                        Abort("User aborted due to a script file changing that was already applied.");
-                                    Console.WriteLine();
-                                }
-                            }
-                            else
-                            {
-                                changedDatabaseObjects.Add(file);
+                                Console.WriteLine("To continue type CONTINUE at the prompt: ");
+                                var option = Console.ReadLine();
+                                if (option != "CONTINUE")
+                                    Abort("User aborted due to a script file changing that was already applied.");
+                                Console.WriteLine();
                             }
                         }
                     }
@@ -77,7 +67,6 @@ namespace SqlPatch
                     if (!applied.Contains(script.Key))
                         scripts.Add(script.Value);
                 }
-                scripts.AddRange(changedDatabaseObjects);
                 Logger.WriteLine("Ready to execute " + scripts.Count + " new scripts...");
                 Logger.Indent();
                 var engine = new ScriptEngine(scripts, SchemaHelpers.CreateConnectionString());
@@ -118,7 +107,7 @@ namespace SqlPatch
         {
             var output = new StringBuilder();
             output.AppendLine();
-            output.AppendLine("Simple Sql Patcher Command Line Arguments");
+            output.AppendLine("Sql Deploy Command Line Arguments");
             output.AppendLine("---");
             output.AppendLine("-m  PATH\t\tDatabase Scripts Directory (no spaces or surrounded by quotes)");
             output.AppendLine("-s  SERVER\tSQL Server Network Address");
@@ -130,9 +119,9 @@ namespace SqlPatch
             output.AppendLine("-f  \t\tActually runs the script.");
             output.AppendLine();
             output.AppendLine("EXAMPLES:");
-            output.AppendLine(@"SqlPatch.exe -m Scripts -s .\SQLEXPRESS -d Northwind -i");
-            output.AppendLine(@"SqlPatch.exe -m Scripts -s .\SQLEXPRESS -d Northwind -u sa -p pa55w0rd");
-            output.AppendLine("SqlPatch.exe -m \"c:\\Example Folder\\Scripts\" -s .\\SQLEXPRESS -d Northwind -i");
+            output.AppendLine(@"SqlDeploy.exe -m Scripts -s .\SQLEXPRESS -d Northwind -i");
+            output.AppendLine(@"SqlDeploy.exe -m Scripts -s .\SQLEXPRESS -d Northwind -u sa -p pa55w0rd");
+            output.AppendLine("SqlDeploy.exe -m \"c:\\Example Folder\\Scripts\" -s .\\SQLEXPRESS -d Northwind -i");
             output.AppendLine();
             Console.Out.WriteLine(output.ToString());
         }

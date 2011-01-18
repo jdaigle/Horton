@@ -8,8 +8,8 @@
     <ProjectGuid>{3DBCBF15-46AC-4DD7-92FD-BF09230A0997}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>SqlPatch</RootNamespace>
-    <AssemblyName>SqlPatch</AssemblyName>
+    <RootNamespace>SqlDeploy</RootNamespace>
+    <AssemblyName>SqlDeploy</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -68,17 +68,6 @@
     <Content Include="Scripts\002_CreateTable.sql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Scripts\Sprocs\CustOrderHist.sql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Scripts\Sprocs\CustOrdersDetail.sql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="Scripts\Views\Alphabetical_list_of_products.sql">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

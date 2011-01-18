@@ -2,7 +2,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace SqlPatch {
+namespace SqlDeploy {
     public static class HashExtensions {
 
         private static MD5 hasher = MD5.Create();

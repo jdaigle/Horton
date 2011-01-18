@@ -1,5 +1,5 @@
 ﻿using System;
-namespace SqlPatch {
+namespace SqlDeploy {
     public interface IScript {
         Guid Id { get; }
         Guid ContentHash { get; }
