@@ -1,9 +1,7 @@
 using System;
-using System.Linq;
 using System.Collections.Generic;
-using System.Collections;
+using System.Linq;
 using System.Text;
-using System.IO;
 
 namespace SqlDeploy
 {
@@ -93,6 +91,7 @@ namespace SqlDeploy
                     Logger.WriteLine(innerExcepton.StackTrace);
                     innerExcepton = innerExcepton.InnerException;
                 }
+                Environment.Exit(1);
             }
         }
 
