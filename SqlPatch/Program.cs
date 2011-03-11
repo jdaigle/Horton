@@ -104,6 +104,7 @@ namespace SqlPatch
                     Logger.WriteLine(innerExcepton.StackTrace);
                     innerExcepton = innerExcepton.InnerException;
                 }
+                Environment.Exit(-1);
             }
         }
 
