@@ -20,6 +20,7 @@ namespace SqlPatch {
                         if (line.Length == 0)
                             continue;
                         using (SqlCommand cmd = connection.CreateCommand()) {
+                            cmd.CommandTimeout = 3000;
                             cmd.Connection = connection;
                             cmd.Transaction = transaction;
                             cmd.CommandText = line;
