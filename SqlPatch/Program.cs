@@ -51,11 +51,16 @@ namespace SqlPatch
                                 Logger.WriteLine(string.Format("WARNING! The script {0} has changed since it was applied on {1}.", file.FileName, script.Applied.Date.ToShortDateString()));
                                 if (!Configuration.World.Unattended)
                                 {
-                                    Console.WriteLine("\nTo run the script again type RERUN. To continue without running type CONTINUE at the prompt: ");
+                                    Console.WriteLine("\nType RERUN to run the script again type, IGNORE to mark the file as executed, or SKIP to skip this file: ");
                                     var option = Console.ReadLine();
                                     if (option == "RERUN")
                                         changedDatabaseObjects.Add(file);
-                                    else if (option != "CONTINUE")
+                                    else if (option == "IGNORE")
+                                    {
+                                        file.IgnoreChangesButTrackFile = true;
+                                        changedDatabaseObjects.Add(file);
+                                    }
+                                    else if (option != "SKIP")
                                         Abort("User aborted due to a script file changing that was already applied.");
                                     Console.WriteLine();
                                 }

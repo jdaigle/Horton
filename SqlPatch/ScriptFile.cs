@@ -31,5 +31,10 @@ namespace SqlPatch {
             return Id == other.Id &&
                 ContentHash == other.ContentHash;
         }
+
+        /// <summary>
+        /// When true, we won't run the changes but we will track the file.
+        /// </summary>
+        public bool IgnoreChangesButTrackFile { get; set; }
     }
 }

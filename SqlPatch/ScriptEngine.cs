@@ -22,8 +22,15 @@ namespace SqlPatch {
                 var transactionName = script.FileName;
                 if (transactionName.Length > 31)
                     transactionName = transactionName.Substring(0, 31);
-                Logger.WriteLine("Executing: " + script.FileName + " (" + script.Id.ToString() + ")");
-                SqlHelpers.ExecuteMultipleLineSqlTransaction(scriptLines, connection, transactionName);
+                if (script.IgnoreChangesButTrackFile)
+                {
+                    Logger.WriteLine("Ignoring: " + script.FileName + " (" + script.Id.ToString() + ")");                    
+                }
+                else
+                {
+                    Logger.WriteLine("Executing: " + script.FileName + " (" + script.Id.ToString() + ")");
+                    SqlHelpers.ExecuteMultipleLineSqlTransaction(scriptLines, connection, transactionName);
+                }
                 SchemaHelpers.InsertScript(script);
                 Logger.WriteLine("Success!");
             }
