@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SqlPatch {
+namespace SqlMigrate {
     public class AppliedScript : IScript {
 
         public AppliedScript(Guid id, Guid hash, DateTime applied, string file, ScriptType type) {

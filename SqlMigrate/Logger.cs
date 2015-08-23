@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SqlPatch
+namespace SqlMigrate
 {
     public static class Logger
     {
@@ -9,7 +9,7 @@ namespace SqlPatch
 
         static Logger()
         {
-            logname = "SqlPatch." + DateTime.UtcNow.Ticks.ToString() + ".log";
+            logname = "SqlMigrate." + DateTime.UtcNow.Ticks.ToString() + ".log";
         }
 
         private static int indentLevel = 0;

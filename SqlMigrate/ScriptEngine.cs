@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Data.SqlClient;
 
-namespace SqlPatch {
+namespace SqlMigrate {
     public class ScriptEngine {
 
         private readonly IList<ScriptFile> scripts;

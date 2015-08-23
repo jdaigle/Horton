@@ -3,7 +3,7 @@ using System.Data;
 using System.Data.SqlClient;
 using System.Text.RegularExpressions;
 
-namespace SqlPatch {
+namespace SqlMigrate {
     public class SqlHelpers {
         public static string[] ParseSqlScript(string script) {
             var regex = new Regex("^GO", RegexOptions.IgnoreCase | RegexOptions.Multiline);

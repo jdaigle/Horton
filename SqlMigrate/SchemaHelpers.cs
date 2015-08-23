@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Data.SqlClient;
 
-namespace SqlPatch {
+namespace SqlMigrate {
     public class SchemaHelpers {
         public static string CreateConnectionString() {
             var connectionStringBuilder = new System.Data.SqlClient.SqlConnectionStringBuilder();

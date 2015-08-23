@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace SqlPatch {
+namespace SqlMigrate {
     public class ScriptFile : IScript {
 
         public ScriptFile(string filePath, string fileName, ScriptType type) {

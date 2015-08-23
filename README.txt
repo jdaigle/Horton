@@ -1,12 +1,11 @@
-Simple Sql Patching Utility
+SQL Database Migrator
 
 --------------
 About
 --------------
 
-Author: joseph@cridion.com
-Version: 2.0
-Website: http://github.com/jdaigle/SqlPatch
+Author: joseph.daigle@gmail.com
+Version: 3.0
 
 This is small utility provides the ability to apply T-SQL based patches or
 migrations to an MS SQL database. A patch is a forward only migration of a 
@@ -15,6 +14,10 @@ SQL database schema.
 --------------
 Change History
 --------------
+
+Version 3.0 (August 23, 2015)
+ - Upgrade to .NET 4.5
+ - Renaming to SqlMigrate
 
 Version 2.0 (March 8, 2010)
  - Complete rewrite... major breaking changes.

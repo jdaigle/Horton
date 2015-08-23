@@ -1,5 +1,5 @@
 ﻿using System;
-namespace SqlPatch {
+namespace SqlMigrate {
     public interface IScript {
         Guid Id { get; }
         Guid ContentHash { get; }

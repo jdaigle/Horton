@@ -5,7 +5,7 @@ using System.Collections;
 using System.Text;
 using System.IO;
 
-namespace SqlPatch
+namespace SqlMigrate
 {
     public class Program
     {
@@ -19,7 +19,7 @@ namespace SqlPatch
                     OutputHelpMessage();
                     return;
                 }
-                Logger.WriteLine("Simple Sql Patcher version 2\n");
+                Logger.WriteLine("Sql Database Migrator Version 3\n");
 
                 Logger.WriteLine("Loading script files...");
                 Logger.Indent();
@@ -136,9 +136,9 @@ namespace SqlPatch
             output.AppendLine("-f  \t\tActually runs the script.");
             output.AppendLine();
             output.AppendLine("EXAMPLES:");
-            output.AppendLine(@"SqlPatch.exe -m Scripts -s .\SQLEXPRESS -d Northwind -i");
-            output.AppendLine(@"SqlPatch.exe -m Scripts -s .\SQLEXPRESS -d Northwind -u sa -p pa55w0rd");
-            output.AppendLine("SqlPatch.exe -m \"c:\\Example Folder\\Scripts\" -s .\\SQLEXPRESS -d Northwind -i");
+            output.AppendLine(@"SqlMigrate.exe -m Scripts -s .\SQLEXPRESS -d Northwind -i");
+            output.AppendLine(@"SqlMigrate.exe -m Scripts -s .\SQLEXPRESS -d Northwind -u sa -p pa55w0rd");
+            output.AppendLine("SqlMigrate.exe -m \"c:\\Example Folder\\Scripts\" -s .\\SQLEXPRESS -d Northwind -i");
             output.AppendLine();
             Console.Out.WriteLine(output.ToString());
         }
