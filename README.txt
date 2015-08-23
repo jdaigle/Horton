@@ -49,9 +49,9 @@ password.
 
 Examples:
 
-SqlPatch.exe -m Scripts -s .\SQLEXPRESS -d Northwind -i
-SqlPatch.exe -m Scripts -s .\SQLEXPRESS -d Northwind -u sa -p pa55w0rd
-SqlPatch.exe -m "c:\Example Folder\Scripts" -s .\SQLEXPRESS -d Northwind -i
+SqlMigrate.exe -m Scripts -s .\SQLEXPRESS -d Northwind -i
+SqlMigrate.exe -m Scripts -s .\SQLEXPRESS -d Northwind -u sa -p pa55w0rd
+SqlMigrate.exe -m "c:\Example Folder\Scripts" -s .\SQLEXPRESS -d Northwind -i
 
 Migration Change Scripts:
 
