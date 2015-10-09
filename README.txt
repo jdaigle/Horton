@@ -5,11 +5,21 @@ About
 --------------
 
 Author: joseph.daigle@gmail.com
-Version: 3.0
+Latest Version: 3.0.1
 
 This is small utility provides the ability to apply T-SQL based patches or
 migrations to an MS SQL database. A patch is a forward only migration of a 
 SQL database schema.
+
+Forward-only database migrations help achieve always consistent database upgrades
+and schema versioning. Instead of comparing two database schemas and generating
+a diff script, we explicitly design the change scripts first. This ensures that
+changes are applied in a predictibly correct way. It also allows us to migrate
+data, and to achieve multi-step database schema refactorings.
+
+It achieves the same result as using Entity Framework Code First Migrations, but
+it is _not_ tied to the ORM. And instead of inventing a new DSL we can use the
+existing T-SQL DDL and DML that everyone already knows.
 
 --------------
 Change History
@@ -33,19 +43,19 @@ Version 1.0 (Oct 4, 2009)
 - Initial Release
 
 --------------
-How to use
+How To Use
 --------------
 
 The executable accepts the following command line arguments:
 
 -m  PATH			Migration Directory Path
--s  SERVER		    SQL Server Network Address
+-s  SERVER			SQL Server Network Address
 -d  DATABASE		SQL Server Database Name
--i 	     			Integrated SQL Server Security
+-i  				Integrated SQL Server Security
 -u  USERNAME		SQL Server Login Username
 -p  PASSWORD		SQL Server Login Password
--a                  Unattended process (useful for integration environments)
--t          Runs the tool in testing mode (only displays the scripts that will change, does not execute them)
+-a  				Unattended process (useful for integration environments)
+-t  				Runs the tool in testing mode (only displays the scripts that will change, does not execute them)
 
 When you use the "-i" argument you do not need to specify the username or
 password.
