@@ -36,53 +36,55 @@ namespace SqlMigrate
 
                 Logger.WriteLine("Checking for applied scripts...");
                 Logger.Indent();
-                var changedDatabaseObjects = new List<ScriptFile>();
                 var appliedScripts = SchemaHelpers.GetScripts();
-                // This loop contains horrors that cannot be unseen, one day I'll be brave enough to refactor it
-                foreach (var script in appliedScripts)
-                {
-                    if (fileLoader.Files.ContainsKey(script.Id))
-                    {
-                        var file = fileLoader.Files[script.Id];
-                        if (!file.Matches(script))
-                        {
-                            if (file.Type == ScriptType.ChangeScript)
-                            {
-                                Logger.WriteLine(string.Format("WARNING! The script {0} has changed since it was applied on {1}.", file.FileName, script.Applied.Date.ToShortDateString()));
-                                if (!Configuration.World.Unattended)
-                                {
-                                    Console.WriteLine("\nType RERUN to run the script again type, IGNORE to mark the file as executed, or SKIP to skip this file: ");
-                                    var option = Console.ReadLine();
-                                    if (option == "RERUN")
-                                        changedDatabaseObjects.Add(file);
-                                    else if (option == "IGNORE")
-                                    {
-                                        file.IgnoreChangesButTrackFile = true;
-                                        changedDatabaseObjects.Add(file);
-                                    }
-                                    else if (option != "SKIP")
-                                        Abort("User aborted due to a script file changing that was already applied.");
-                                    Console.WriteLine();
-                                }
-                            }
-                            else
-                            {
-                                changedDatabaseObjects.Add(file);
-                            }
-                        }
-                    }
-                }
-                Logger.Unindent();
-                Logger.WriteLine("Database is ready to be patched!\n");
-
                 var applied = new HashSet<Guid>(appliedScripts.Select(x => x.Id));
                 var scripts = new List<ScriptFile>();
                 foreach (var script in fileLoader.Files)
                 {
                     if (!applied.Contains(script.Key))
+                    {
                         scripts.Add(script.Value);
+                    } else
+                    {
+                        // check to see if script file has been altered
+                        var appliedScript = appliedScripts.Single(x => x.Id == script.Key);
+                        var scriptFile = script.Value;
+                        if (!scriptFile.Matches(appliedScript))
+                        {
+                            if (scriptFile.Type == ScriptType.ChangeScript)
+                            {
+                                Logger.WriteLine(string.Format("WARNING! The script {0} has changed since it was applied on {1}.", scriptFile.FileName, appliedScript.Applied.Date.ToShortDateString()));
+                                if (!Configuration.World.Unattended)
+                                {
+                                    Console.WriteLine("\nType RERUN to run the script again type, IGNORE to mark the file as executed, or SKIP to skip this file: ");
+                                    var option = Console.ReadLine();
+                                    if (option == "RERUN")
+                                    {
+                                        scripts.Add(scriptFile);
+                                    }
+                                    else if (option == "IGNORE")
+                                    {
+                                        scriptFile.IgnoreChangesButTrackFile = true;
+                                        scripts.Add(scriptFile);
+                                    }
+                                    else if (option != "SKIP")
+                                    {
+                                        Abort("User aborted due to a script file changing that was already applied.");
+                                    }
+                                    Console.WriteLine();
+                                }
+                            }
+                            else
+                            {
+                                scripts.Add(scriptFile);
+                            }
+                        }
+                    }
                 }
-                scripts.AddRange(changedDatabaseObjects);
+
+                Logger.Unindent();
+                Logger.WriteLine("Database is ready to be patched!\n");
+
                 Logger.WriteLine("Ready to execute " + scripts.Count + " new scripts...");
                 Logger.Indent();
                 var engine = new ScriptEngine(scripts, SchemaHelpers.CreateConnectionString());

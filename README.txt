@@ -15,7 +15,10 @@ SQL database schema.
 Change History
 --------------
 
-Version 3.0 (August 23, 2015)
+Version 3.0.1 (October 9, 2015)
+ - fixing bug that causes RERUN scripts to execute *after* new scripts.
+
+Version 3.0.0 (August 23, 2015)
  - Upgrade to .NET 4.5
  - Renaming to SqlMigrate
 
