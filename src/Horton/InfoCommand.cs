@@ -39,7 +39,7 @@ namespace Horton
                     var prevColor = Console.ForegroundColor;
                     Console.ForegroundColor = ConsoleColor.DarkGreen;
                     Console.WriteLine($"\n\"{file.FileName}\" will execute on UPDATE.");
-                        Console.ForegroundColor = prevColor;
+                    Console.ForegroundColor = prevColor;
                 }
             }
 
