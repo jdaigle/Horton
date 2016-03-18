@@ -1,10 +1,12 @@
-﻿namespace Horton
+﻿using System;
+
+namespace Horton
 {
     public class HortonOptions
     {
         public string Command { get; set; } = "";
 
-        public string MigrationsDirectoryPath { get; set; } = ".";
+        public string MigrationsDirectoryPath { get; set; } = Environment.CurrentDirectory;
         public string ServerHostname { get; set; } = "localhost";
         public string DatabaseName { get; set; } = "";
 

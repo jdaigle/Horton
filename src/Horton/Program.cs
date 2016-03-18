@@ -53,6 +53,13 @@ namespace Horton
                 Console.WriteLine("Try `horton.exe --help' for more information.");
                 return;
             }
+
+            var loader = new FileLoader(options.MigrationsDirectoryPath);
+            loader.LoadAllFiles();
+            foreach (var item in loader.Files)
+            {
+                Console.WriteLine($"{item.FileName} {item.ContentSHA1Hash} {item.GetType().Name}");
+            }
         }
 
         static void ShowHelp(OptionSet p)
