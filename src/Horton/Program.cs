@@ -10,6 +10,28 @@ namespace Horton
     {
         public static void Main(string[] args)
         {
+            try
+            {
+                MainInternal(args);
+            }
+            catch (Exception ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.Error.WriteLine(ex.Message);
+                Console.Error.WriteLine(ex.StackTrace);
+            }
+            finally
+            {
+                Console.ResetColor();
+            }
+        }
+
+        private static void MainInternal(string[] args)
+        {
+            Console.WriteLine();
+            Console.WriteLine("Horton. The simple database migration utility.");
+            Console.WriteLine();
+
             var options = new HortonOptions();
             bool showHelp = false;
 
@@ -54,29 +76,17 @@ namespace Horton
             string firstValidationMessage = "";
             if (!options.AssertValid(out firstValidationMessage))
             {
-                Console.Write("horton: ");
                 Console.WriteLine(firstValidationMessage);
                 Console.WriteLine("Try `horton.exe --help' for more information.");
                 return;
             }
 
-            var loader = new FileLoader(options.MigrationsDirectoryPath);
-            loader.LoadAllFiles();
-
-            var schemaInfo = new SchemaInfo(options);
-            schemaInfo.InitializeTable();
-
-            foreach (var item in loader.Files)
-            {
-                schemaInfo.ResyncMigration(item);
-            }
+            Console.WriteLine();
+            options.Command.Execute(options);
         }
 
         static void ShowHelp(OptionSet p)
         {
-            Console.WriteLine();
-            Console.WriteLine("Horton. The simple database migration utility.");
-            Console.WriteLine();
             Console.WriteLine("Usage: horton.exe [OPTIONS] [COMMAND]");
             Console.WriteLine();
             Console.WriteLine("Commands:");

@@ -63,5 +63,10 @@ namespace Horton
         {
             return FileName.CompareTo(other.FileName);
         }
+
+        public virtual bool ContentConflict(string contentSHA1Hash)
+        {
+            return false;
+        }
     }
 }

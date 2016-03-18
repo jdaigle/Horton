@@ -28,6 +28,7 @@ namespace Horton.SqlServer
                 connectionStringBuilder.UserID = options.Username;
                 connectionStringBuilder.Password = options.Password;
             }
+            connectionStringBuilder.Pooling = false;
             return connectionStringBuilder.ToString();
         }
 
@@ -57,6 +58,7 @@ namespace Horton.SqlServer
                         appliedMigrations.Add(record);
                     }
                 }
+                appliedMigrations.Sort((a, b) => a.AppliedUTC.CompareTo(b.AppliedUTC));
             }
         }
 

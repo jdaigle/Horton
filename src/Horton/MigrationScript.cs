@@ -33,5 +33,10 @@ namespace Horton
         {
             return SerialNumber.CompareTo(other.SerialNumber);
         }
+
+        public override bool ContentConflict(string contentSHA1Hash)
+        {
+            return !string.Equals(ContentSHA1Hash, contentSHA1Hash, StringComparison.InvariantCultureIgnoreCase);
+        }
     }
 }

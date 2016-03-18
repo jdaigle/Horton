@@ -7,21 +7,21 @@
         public const string SYNC = "sync";
         public const string HISTORY = "history";
 
-        public static string TryParseCommand(string command)
+        public static HortonCommand TryParseCommand(string command)
         {
             var cmd = command.ToLowerInvariant();
 
             if (cmd == UPDATE)
-                return UPDATE;
+                return new UpdateCommand();
 
             if (cmd == INFO)
-                return INFO;
+                return new InfoCommand();
 
             if (cmd == SYNC)
-                return SYNC;
+                return new SyncCommand();
 
             if (cmd == HISTORY)
-                return HISTORY;
+                return new HistoryCommand();
 
             return null;
         }

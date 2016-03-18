@@ -4,7 +4,7 @@ namespace Horton
 {
     public class HortonOptions
     {
-        public string Command { get; set; } = "";
+        public HortonCommand Command { get; set; }
 
         public string MigrationsDirectoryPath { get; set; } = Environment.CurrentDirectory;
         public string ServerHostname { get; set; } = "localhost";
@@ -19,7 +19,7 @@ namespace Horton
 
         public bool AssertValid(out string firstValidationMessage)
         {
-            if (string.IsNullOrWhiteSpace(Command))
+            if (Command == null)
             {
                 firstValidationMessage = "Command is required.";
                 return false;
