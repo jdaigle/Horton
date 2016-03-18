@@ -12,6 +12,8 @@ namespace Horton
 
         public int SerialNumber { get; }
 
+        public override byte TypeCode { get { return 1; } }
+
         public override int CompareTo(ScriptFile other)
         {
             if (ReferenceEquals(this, other))

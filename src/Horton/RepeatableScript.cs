@@ -6,5 +6,7 @@
             :base (filePath, fileName)
         {
         }
+
+        public override byte TypeCode { get { return 2; } }
     }
 }

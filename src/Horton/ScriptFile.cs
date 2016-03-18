@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Horton
 {
-    public class ScriptFile : IComparable, IComparable<ScriptFile>
+    public abstract class ScriptFile : IComparable, IComparable<ScriptFile>
     {
         public static ScriptFile Load(FileInfo x)
         {
@@ -44,6 +44,8 @@ namespace Horton
 
         public string Content { get; }
         public string ContentSHA1Hash { get; }
+
+        public abstract byte TypeCode { get; }
 
         public int CompareTo(object obj)
         {

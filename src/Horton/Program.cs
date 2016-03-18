@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Horton.SqlServer;
 using NDesk.Options;
 
 namespace Horton
@@ -61,9 +62,13 @@ namespace Horton
 
             var loader = new FileLoader(options.MigrationsDirectoryPath);
             loader.LoadAllFiles();
+
+            var schemaInfo = new SchemaInfo(options);
+            schemaInfo.InitializeTable();
+
             foreach (var item in loader.Files)
             {
-                Console.WriteLine($"{item.FileName} {item.ContentSHA1Hash} {item.GetType().Name}");
+                schemaInfo.ResyncMigration(item);
             }
         }
 
