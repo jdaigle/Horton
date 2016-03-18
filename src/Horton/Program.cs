@@ -24,6 +24,11 @@ namespace Horton
                 { "h|help|?",  "show help message and exit.", v => showHelp = v != null },
             };
 
+            if (args.Length == 0)
+            {
+                showHelp = true;
+            }
+
             List<string> extra;
             try
             {
@@ -79,8 +84,8 @@ namespace Horton
             p.WriteOptionDescriptions(Console.Out);
             Console.WriteLine();
             Console.WriteLine("Examples:");
-            Console.WriteLine("horton.exe -m \"\\path\\to\\migrations\" -s LOCALHOST -d Northwind -U");
-            Console.WriteLine("horton.exe -m \"\\path\\to\\migrations\" -s LOCALHOST -d Northwind -u sa -p pa55w0rd");
+            Console.WriteLine(" horton.exe -m \"\\path\\to\\migrations\" -s LOCALHOST -d Northwind -U");
+            Console.WriteLine(" horton.exe -m \"\\path\\to\\migrations\" -s LOCALHOST -d Northwind -u sa -p pa55w0rd");
         }
     }
 }
