@@ -7,16 +7,18 @@ namespace Horton
     {
         public override void Execute(HortonOptions options)
         {
-            var schemaInfo = new SchemaInfo(options);
-            schemaInfo.InitializeTable();
-
-            Console.WriteLine("=== History ===");
-            Console.WriteLine();
-            Console.WriteLine("Timestamp (UTC)        | File Name            | User");
-            Console.WriteLine("---------------------------------------------------------------------");
-            foreach (var item in schemaInfo.AppliedMigrations)
+            using (var schemaInfo = new SchemaInfo(options))
             {
-                Console.WriteLine($"{item.AppliedUTC.ToString("yyyy-MM-dd HH:mm:ss.ff")} | {TrimOrPad(item.FileName, 20)} | {TrimOrPad(item.SystemUser, 20)}");
+                schemaInfo.InitializeTable();
+
+                Console.WriteLine("=== History ===");
+                Console.WriteLine();
+                Console.WriteLine("Timestamp (UTC)        | File Name            | User");
+                Console.WriteLine("---------------------------------------------------------------------");
+                foreach (var item in schemaInfo.AppliedMigrations)
+                {
+                    Console.WriteLine($"{item.AppliedUTC.ToString("yyyy-MM-dd HH:mm:ss.ff")} | {TrimOrPad(item.FileName, 20)} | {TrimOrPad(item.SystemUser, 20)}");
+                }
             }
         }
 

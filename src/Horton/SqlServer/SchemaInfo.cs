@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Data.SqlClient;
@@ -7,7 +8,7 @@ using System.Text.RegularExpressions;
 
 namespace Horton.SqlServer
 {
-    public class SchemaInfo
+    public class SchemaInfo : IDisposable
     {
         private readonly List<AppliedMigrationRecord> appliedMigrations = new List<AppliedMigrationRecord>();
 
@@ -17,7 +18,7 @@ namespace Horton.SqlServer
             Connection.Open();
         }
 
-        public static string CreateConnectionString(HortonOptions options)
+        private static string CreateConnectionString(HortonOptions options)
         {
             var connectionStringBuilder = new SqlConnectionStringBuilder();
             connectionStringBuilder.DataSource = options.ServerHostname;
@@ -36,6 +37,7 @@ namespace Horton.SqlServer
 
         public void InitializeTable()
         {
+            AssertNotDisposed();
             appliedMigrations.Clear();
 
             using (var cmd = Connection.CreateCommand())
@@ -66,6 +68,7 @@ namespace Horton.SqlServer
 
         public void ApplyMigration(ScriptFile migration)
         {
+            AssertNotDisposed();
             var commands = ParseSqlScript(migration.Content);
             using (var transaction = Connection.BeginTransaction() as SqlTransaction)
             {
@@ -97,6 +100,7 @@ namespace Horton.SqlServer
 
         public void ResyncMigration(ScriptFile migration)
         {
+            AssertNotDisposed();
             using (var transaction = Connection.BeginTransaction() as SqlTransaction)
             {
                 using (SqlCommand cmd = Connection.CreateCommand() as SqlCommand)
@@ -116,6 +120,7 @@ namespace Horton.SqlServer
 
         private void RecordMigration(DbTransaction transaction, ScriptFile migration, double transactionDuractionMS)
         {
+            AssertNotDisposed();
             using (SqlCommand cmd = Connection.CreateCommand() as SqlCommand)
             {
                 cmd.Transaction = transaction as SqlTransaction;
@@ -134,6 +139,31 @@ namespace Horton.SqlServer
                 param_TransactionDuractionMS.Value = transactionDuractionMS;
 
                 cmd.ExecuteNonQuery();
+            }
+        }
+
+        private bool disposed;
+
+        private void AssertNotDisposed()
+        {
+            if (disposed)
+                throw new ObjectDisposedException(nameof(SchemaInfo));
+        }
+
+        public void Dispose()
+        {
+            if (!disposed)
+            {
+                try
+                {
+                    if (Connection.State == ConnectionState.Open)
+                        Connection.Close();
+                    Connection.Dispose();
+                }
+                finally
+                {
+                    disposed = true;
+                }
             }
         }
 
