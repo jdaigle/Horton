@@ -2,14 +2,10 @@
 using System.Runtime.InteropServices;
 
 [assembly: AssemblyTitle("Horton")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Horton")]
+[assembly: AssemblyDescription("The simple database migration utility.")]
+[assembly: AssemblyProduct("Horton. The simple database migration utility.")]
 [assembly: AssemblyCopyright("Copyright (c) 2016 Joseph Daigle")]
-[assembly: AssemblyTrademark("")]
-[assembly: AssemblyCulture("")]
 
 [assembly: ComVisible(false)]
 
-[assembly: AssemblyVersion("0.1")]
+[assembly: AssemblyVersion("1.0.0")]
