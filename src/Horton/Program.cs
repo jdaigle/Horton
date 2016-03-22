@@ -39,7 +39,7 @@ namespace Horton
             {
                 { "m|migrations=", "path to migration scripts.\n(leave blank for current directory)", v => options.MigrationsDirectoryPath = v },
                 { "s|server=", "server hostname.\n(leave blank for \"localhost\"", v => options.ServerHostname = v },
-                { "d|database=", "database name.", v => options.DatabaseName = v },
+                { "d|database=", "database name.\n(leave blank to look for \"database.name\")", v => options.DatabaseName = v },
                 { "u|username=", "username of the database connection.\n(leave blank for integrated security)", v => options.Username = v },
                 { "p|password=", "password of the database connection.\n(required if username is provided)", v => options.Password = v },
                 { "U|UNATTEND", "Surpress user acknowledgement before\nexecution.", v => options.Unattend = v != null },
@@ -72,6 +72,8 @@ namespace Horton
             }
 
             options.Command = HortonCommands.TryParseCommand(extra.FirstOrDefault() ?? "");
+
+            options.TryGetDatabaseNameFromFile();
 
             string firstValidationMessage = "";
             if (!options.AssertValid(out firstValidationMessage))

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 namespace Horton
 {
@@ -27,7 +28,7 @@ namespace Horton
 
             if (string.IsNullOrWhiteSpace(DatabaseName))
             {
-                firstValidationMessage = "Database Name is required.";
+                firstValidationMessage = "Database name is required (either by parameter or \"database.name\" file).";
                 return false;
             }
 
@@ -39,6 +40,22 @@ namespace Horton
 
             firstValidationMessage = "";
             return true;
+        }
+
+        public void TryGetDatabaseNameFromFile()
+        {
+            if (string.IsNullOrWhiteSpace(DatabaseName))
+            {
+                var databaseNameFile = Path.Combine(MigrationsDirectoryPath, "database.name");
+                if (File.Exists(databaseNameFile))
+                {
+                    var lines = File.ReadAllLines(databaseNameFile);
+                    if (lines.Length > 0)
+                    {
+                        DatabaseName = lines[0].Trim();
+                    }
+                }
+            }
         }
     }
 }
