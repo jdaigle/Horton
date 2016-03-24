@@ -1,0 +1,2 @@
+IF (SELECT max_length FROM sys.columns WHERE object_id = OBJECT_ID('Person.EmailAddress') AND name = 'EmailAddress') < (255*2) -- double for unicode
+ALTER TABLE Person.EmailAddress ALTER COLUMN EmailAddress NVARCHAR(255);
