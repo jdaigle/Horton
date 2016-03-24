@@ -5,7 +5,7 @@ schema through SQL based migration scripts.
 
 How do I get started?
 --------------------------------
-Check out the [getting started guide](GettingStarted.txt).
+Check out the [getting started guide](GettingStarted.md).
 
 Where can I get it?
 --------------------------------
