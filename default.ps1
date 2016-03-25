@@ -45,6 +45,7 @@ task compile -depends init {
 }
 
 task package -depends compile {
-    Copy-Item $baseDir\README.txt $artifactsDir
+    Copy-Item $baseDir\README.md $artifactsDir
+    Copy-Item $baseDir\GettingStarted.md $artifactsDir
     Copy-Item $buildDir\Horton.exe $artifactsDir
 }
