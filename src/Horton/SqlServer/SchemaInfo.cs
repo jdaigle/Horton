@@ -66,7 +66,15 @@ namespace Horton.SqlServer
 
         public IReadOnlyList<AppliedMigrationRecord> AppliedMigrations { get { return appliedMigrations; } }
 
+
         public void ApplyMigration(ScriptFile migration)
+        {
+            ApplyMigration(migration, true);
+        }
+        // new parameter doRecord:  Should we run RecordMigration()?
+        // XXX hack to run repeatable files without trying to overwrite schema info in DB
+        // There has to be a better way to do this.
+        public void ApplyMigration(ScriptFile migration, bool doRecord)
         {
             AssertNotDisposed();
             var commands = ParseSqlScript(migration.Content);
@@ -87,7 +95,10 @@ namespace Horton.SqlServer
                     }
                 }
                 sw.Stop();
-                RecordMigration(transaction, migration, sw.Elapsed.TotalMilliseconds);
+                if (doRecord)
+                {
+                    RecordMigration(transaction, migration, sw.Elapsed.TotalMilliseconds);
+                }
                 transaction.Commit();
             }
         }
