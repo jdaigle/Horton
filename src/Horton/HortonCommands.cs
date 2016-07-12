@@ -9,7 +9,7 @@
 
         public static HortonCommand TryParseCommand(string command)
         {
-            var cmd = command.ToLowerInvariant();
+            var cmd = command.ToLower();
 
             if (cmd == UPDATE)
                 return new UpdateCommand();
