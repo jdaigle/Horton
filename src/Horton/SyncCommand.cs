@@ -24,7 +24,7 @@ namespace Horton
                     var existingRecord = schemaInfo.AppliedMigrations.SingleOrDefault(x => x.FileNameMD5Hash == file.FileNameHash);
                     if (existingRecord != null)
                     {
-                        if (file.ContentConflict(existingRecord.ContentSHA1Hash))
+                        if (!file.ContentMatches(existingRecord.ContentSHA1Hash))
                         {
                             var prevColor = Console.ForegroundColor;
                             Console.ForegroundColor = ConsoleColor.Red;

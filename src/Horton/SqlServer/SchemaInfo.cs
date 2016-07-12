@@ -87,6 +87,11 @@ namespace Horton.SqlServer
                     }
                 }
                 sw.Stop();
+                if (migration is RepeatableScript)
+                {
+                    // delete any existing record before inserting
+                    TryDeleteMigration(transaction, migration);
+                }
                 RecordMigration(transaction, migration, sw.Elapsed.TotalMilliseconds);
                 transaction.Commit();
             }
@@ -103,18 +108,23 @@ namespace Horton.SqlServer
             AssertNotDisposed();
             using (var transaction = Connection.BeginTransaction() as SqlTransaction)
             {
-                using (SqlCommand cmd = Connection.CreateCommand() as SqlCommand)
-                {
-                    cmd.Transaction = transaction;
-                    cmd.CommandText = DeleteByFileNameMD5Hash;
-
-                    var param_FileNameMD5Hash = cmd.Parameters.Add("@FileNameMD5Hash", SqlDbType.UniqueIdentifier);
-                    param_FileNameMD5Hash.Value = migration.FileNameHash;
-
-                    cmd.ExecuteNonQuery();
-                }
+                TryDeleteMigration(transaction, migration);
                 RecordMigration(transaction, migration, 0);
                 transaction.Commit();
+            }
+        }
+
+        private void TryDeleteMigration(DbTransaction transaction, ScriptFile migration)
+        {
+            using (SqlCommand cmd = Connection.CreateCommand() as SqlCommand)
+            {
+                cmd.Transaction = transaction as SqlTransaction;
+                cmd.CommandText = DeleteByFileNameMD5Hash;
+
+                var param_FileNameMD5Hash = cmd.Parameters.Add("@FileNameMD5Hash", SqlDbType.UniqueIdentifier);
+                param_FileNameMD5Hash.Value = migration.FileNameHash;
+
+                cmd.ExecuteNonQuery();
             }
         }
 

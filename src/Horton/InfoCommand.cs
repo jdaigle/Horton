@@ -8,6 +8,7 @@ namespace Horton
     {
         public override void Execute(HortonOptions options)
         {
+            var prevColor = Console.ForegroundColor;
             using (var schemaInfo = new SchemaInfo(options))
             {
                 schemaInfo.InitializeTable();
@@ -26,27 +27,26 @@ namespace Horton
                     var existingRecord = schemaInfo.AppliedMigrations.SingleOrDefault(x => x.FileNameMD5Hash == file.FileNameHash);
                     if (existingRecord != null)
                     {
-                        if (file.ContentConflict(existingRecord.ContentSHA1Hash))
+                        if (file.ContentMatches(existingRecord.ContentSHA1Hash))
                         {
-                            var prevColor = Console.ForegroundColor;
+                            continue;
+                        }
+                        if (file.ConflictOnContent)
+                        {
                             Console.ForegroundColor = ConsoleColor.Red;
                             Console.WriteLine($"\nCONFLICT: The script \"{file.FileName}\" has changed since it was applied on \"{existingRecord.AppliedUTC.ToString("yyyy-MM-dd HH:mm:ss.ff")}\".");
                             Console.ForegroundColor = prevColor;
                             willExecuteMigrations = false;
+                            continue;
                         }
                     }
-                    else
-                    {
-                        var prevColor = Console.ForegroundColor;
-                        Console.ForegroundColor = ConsoleColor.DarkGreen;
-                        Console.WriteLine($"\n\"{file.FileName}\" will execute on UPDATE.");
-                        Console.ForegroundColor = prevColor;
-                    }
+                    Console.ForegroundColor = ConsoleColor.DarkGreen;
+                    Console.WriteLine($"\n\"{file.FileName}\" will execute on UPDATE.");
+                    Console.ForegroundColor = prevColor;
                 }
 
                 if (!willExecuteMigrations)
                 {
-                    var prevColor = Console.ForegroundColor;
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine($"\nWARNING! Migrations will not execute until conflicts are resolved.");
                     Console.ForegroundColor = prevColor;

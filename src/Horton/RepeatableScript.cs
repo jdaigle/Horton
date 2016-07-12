@@ -8,5 +8,6 @@
         }
 
         public override byte TypeCode { get { return 2; } }
+        public override bool ConflictOnContent { get { return false; } }
     }
 }

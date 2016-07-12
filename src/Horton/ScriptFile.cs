@@ -46,6 +46,7 @@ namespace Horton
         public string ContentSHA1Hash { get; }
 
         public abstract byte TypeCode { get; }
+        public abstract bool ConflictOnContent { get; }
 
         public int CompareTo(object obj)
         {
@@ -64,9 +65,9 @@ namespace Horton
             return FileName.CompareTo(other.FileName);
         }
 
-        public virtual bool ContentConflict(string contentSHA1Hash)
+        public bool ContentMatches(string contentSHA1Hash)
         {
-            return false;
+            return string.Equals(ContentSHA1Hash, contentSHA1Hash, StringComparison.OrdinalIgnoreCase);
         }
     }
 }

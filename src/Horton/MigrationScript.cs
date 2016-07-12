@@ -13,6 +13,7 @@ namespace Horton
         public int SerialNumber { get; }
 
         public override byte TypeCode { get { return 1; } }
+        public override bool ConflictOnContent { get { return true; } }
 
         public override int CompareTo(ScriptFile other)
         {
@@ -32,11 +33,6 @@ namespace Horton
         public int CompareTo(MigrationScript other)
         {
             return SerialNumber.CompareTo(other.SerialNumber);
-        }
-
-        public override bool ContentConflict(string contentSHA1Hash)
-        {
-            return !string.Equals(ContentSHA1Hash, contentSHA1Hash, StringComparison.InvariantCultureIgnoreCase);
         }
     }
 }
