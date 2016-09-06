@@ -11,6 +11,12 @@ namespace Horton.MigrationGenerator.EF6
 {
     public class DiffTool
     {
+        public DiffTool(ObjectContext sourceObjectContext, DbConnection targetConnection)
+        {
+            _sourceObjectContext = sourceObjectContext;
+            _targetConnection = targetConnection;
+        }
+
         private readonly ObjectContext _sourceObjectContext;
         private readonly DbConnection _targetConnection;
 
