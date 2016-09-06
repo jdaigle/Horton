@@ -6,6 +6,7 @@ namespace Horton
     public class HortonOptions
     {
         public HortonCommand Command { get; set; }
+        public string[] ExtraParameters { get; set; }
 
         public string MigrationsDirectoryPath { get; set; } = Environment.CurrentDirectory;
         public string ServerHostname { get; set; } = "localhost";
@@ -26,6 +27,7 @@ namespace Horton
                 return false;
             }
 
+            TryGetDatabaseNameFromFile();
             if (string.IsNullOrWhiteSpace(DatabaseName))
             {
                 firstValidationMessage = "Database name is required (either by parameter or \"database.name\" file).";
@@ -42,7 +44,7 @@ namespace Horton
             return true;
         }
 
-        public void TryGetDatabaseNameFromFile()
+        private void TryGetDatabaseNameFromFile()
         {
             if (string.IsNullOrWhiteSpace(DatabaseName))
             {

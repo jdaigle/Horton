@@ -7,6 +7,9 @@ namespace Horton
 {
     internal class UpdateCommand : HortonCommand
     {
+        public override string Name { get { return "UPDATE"; } }
+        public override string Description { get { return "Executes current migrations if no conflicts exist."; } }
+
         public override void Execute(HortonOptions options)
         {
             using (var schemaInfo = new SchemaInfo(options))

@@ -109,8 +109,7 @@ namespace Horton
             }
 
             options.Command = HortonCommands.TryParseCommand(extra.FirstOrDefault() ?? "");
-
-            options.TryGetDatabaseNameFromFile();
+            options.ExtraParameters = extra.Skip(1).ToArray();
 
             string firstValidationMessage = "";
             if (!options.AssertValid(out firstValidationMessage))
@@ -126,13 +125,36 @@ namespace Horton
 
         static void ShowHelp(OptionSet p)
         {
+            HortonCommands.LoadPluginsLazy();
+
             Console.WriteLine("Usage: horton.exe [OPTIONS] [COMMAND]");
             Console.WriteLine();
             Console.WriteLine("Commands:");
-            Console.WriteLine(" UPDATE\t\tExecutes current migrations if no conflicts exist.");
-            Console.WriteLine(" INFO\t\tPrints the migrations that will execute on UPDATE.\n\t\tPrints any conflicting scripts.");
-            Console.WriteLine(" SYNC\t\tResolves migration conflicts by updated checksums\n\t\tin database schema_info table.");
-            Console.WriteLine(" HISTORY\tPrints all previously executed migrations.");
+            var maxCommandNameLength = HortonCommands.Commands.Max(x => x.Name.Length);
+            var descriptionLeftPadding = 1 + maxCommandNameLength + 1;
+            var descriptionSplitLength = 79 - descriptionLeftPadding;
+            foreach (var command in HortonCommands.Commands)
+            {
+                Console.Write(" ");
+                Console.Write(command.Name.PadRight(maxCommandNameLength + 1));
+                var description = command.Description;
+                var padding = 0;
+                while (description.Length > 0)
+                {
+                    var substringLength = Math.Min(description.Length, descriptionSplitLength);
+                    var toPrint = description.Substring(0, substringLength).Trim();
+                    Console.Write(new string(" "[0], padding));
+                    Console.Write(toPrint);
+                    if (description.Length <= substringLength)
+                    {
+                        break;
+                    }
+                    description = description.Substring(substringLength);
+                    padding = descriptionLeftPadding;
+                    Console.WriteLine();
+                }
+                Console.WriteLine();
+            }
             Console.WriteLine();
             Console.WriteLine("Options:");
             p.WriteOptionDescriptions(Console.Out);

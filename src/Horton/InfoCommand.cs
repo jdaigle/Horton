@@ -6,6 +6,9 @@ namespace Horton
 {
     internal class InfoCommand : HortonCommand
     {
+        public override string Name { get { return "INFO"; } }
+        public override string Description { get { return "Prints the migrations that will execute on UPDATE. Prints any conflicting scripts."; } }
+
         public override void Execute(HortonOptions options)
         {
             using (var schemaInfo = new SchemaInfo(options))

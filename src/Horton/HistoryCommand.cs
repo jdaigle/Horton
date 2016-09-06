@@ -5,6 +5,9 @@ namespace Horton
 {
     internal class HistoryCommand : HortonCommand
     {
+        public override string Name { get { return "HISTORY"; } }
+        public override string Description { get { return "Prints all previously executed migrations."; } }
+
         public override void Execute(HortonOptions options)
         {
             using (var schemaInfo = new SchemaInfo(options))

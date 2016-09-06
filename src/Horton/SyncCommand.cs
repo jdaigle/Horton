@@ -6,6 +6,9 @@ namespace Horton
 {
     internal class SyncCommand : HortonCommand
     {
+        public override string Name { get { return "SYNC"; } }
+        public override string Description { get { return "Resolves migration conflicts by updated checksums in database schema_info table."; } }
+
         public override void Execute(HortonOptions options)
         {
             using (var schemaInfo = new SchemaInfo(options))

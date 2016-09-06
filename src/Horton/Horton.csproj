@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AppliedMigrationRecord.cs" />
+    <Compile Include="AssemblyExtensions.cs" />
     <Compile Include="FileLoader.cs" />
     <Compile Include="HashExtensions.cs" />
     <Compile Include="HistoryCommand.cs" />
@@ -55,6 +56,7 @@
     <Compile Include="HortonCommands.cs" />
     <Compile Include="HortonOptions.cs" />
     <Compile Include="InfoCommand.cs" />
+    <Compile Include="IPlugin.cs" />
     <Compile Include="RepeatableScript.cs" />
     <Compile Include="MigrationScript.cs" />
     <Compile Include="Options.cs" />
