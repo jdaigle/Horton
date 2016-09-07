@@ -28,15 +28,14 @@ namespace Horton.MigrationGenerator.EF6
         {
             var entityConnection = (EntityConnection)_sourceObjectContext.Connection;
             var storeItemCollection = (StoreItemCollection)entityConnection.GetMetadataWorkspace().GetItemCollection(DataSpace.SSpace);
-            var objectItemsCollection = (ObjectItemCollection)entityConnection.GetMetadataWorkspace().GetItemCollection(DataSpace.OSpace);
-            var mappingSpace = (EntityContainerMapping)entityConnection.GetMetadataWorkspace().GetItemCollection(DataSpace.CSSpace)[0];
-            var f = mappingSpace.EntitySetMappings.First();
 
             var newSchemas = CheckForNewSchemas(storeItemCollection);
             var tableChanges = CheckForTableChanges(storeItemCollection);
+            var fkChanges = CheckForNewForeignKeyConstraints(storeItemCollection);
 
             return newSchemas
                 .Concat(tableChanges)
+                .Concat(fkChanges)
                 .ToList();
         }
 
@@ -55,7 +54,7 @@ namespace Horton.MigrationGenerator.EF6
                 var entitySets = container.BaseEntitySets.OfType<EntitySet>().OrderBy(s => s.Name);
                 foreach (var entitySet in entitySets)
                 {
-                    var objectIdentifier = GetTableObjectIdentifierString(entitySet.Table, entitySet.Schema);
+                    var objectIdentifier = GetQuotedObjectIdentifierString(entitySet.Table, entitySet.Schema);
 
                     var existingObject = _targetConnection
                         .Query<Sys.Object>("SELECT * FROM sys.objects WHERE object_id= OBJECT_ID(@objectIdentifier)", new { objectIdentifier })
@@ -80,6 +79,60 @@ namespace Horton.MigrationGenerator.EF6
                     }
                 }
             }
+        }
+
+        private IEnumerable<AbstractDatabaseChange> CheckForNewForeignKeyConstraints(StoreItemCollection storeItemCollection)
+        {
+            var allFKs = _targetConnection.Query<Sys.ForeignKey>(@"
+SELECT
+    fkc.*,
+    ForeignKeyName = fk.name,
+    ParentObjectName = po.name,
+    ParentSchemaName = ps.name,
+    ParentColumnName = pc.name,
+    ReferencedObjectName = ro.name,
+    ReferencedSchemaName = rs.name,
+    ReferencedColumnName = rc.name
+FROM sys.foreign_key_columns fkc
+    INNER JOIN sys.foreign_keys fk ON fk.object_id = fkc.constraint_object_id
+    INNER JOIN sys.objects po ON po.object_id = fkc.parent_object_id
+    INNER JOIN sys.schemas ps ON ps.schema_id = po.schema_id
+    INNER JOIN sys.columns pc ON pc.column_id = fkc.parent_column_id AND pc.object_id = fkc.parent_object_id
+    INNER JOIN sys.objects ro ON ro.object_id = fkc.referenced_object_id
+    INNER JOIN sys.schemas rs ON rs.schema_id = ro.schema_id
+    INNER JOIN sys.columns rc ON rc.column_id = fkc.referenced_column_id AND rc.object_id = fkc.referenced_object_id").ToList();
+
+            foreach (var container in storeItemCollection.GetItems<EntityContainer>())
+            {
+                foreach (var associationSet in container.BaseEntitySets.OfType<AssociationSet>().OrderBy(s => s.Name))
+                {
+                    var constraint = associationSet.ElementType.ReferentialConstraints.Single();
+                    var principalEnd = associationSet.AssociationSetEnds[constraint.FromRole.Name];
+                    var dependentEnd = associationSet.AssociationSetEnds[constraint.ToRole.Name];
+
+                    var fkName = associationSet.Name;
+                    var parentTableName = dependentEnd.EntitySet.Table;
+                    var parentSchemaName = dependentEnd.EntitySet.Schema;
+                    var parentColumnName = constraint.ToProperties[0].Name;
+                    var referencedTableName = principalEnd.EntitySet.Table;
+                    var referencedSchemaName = principalEnd.EntitySet.Schema;
+                    var referencedColumnName = constraint.FromProperties[0].Name;
+
+                    if (!allFKs.Exists(fk => fk.Matches(parentTableName, parentSchemaName, parentColumnName, referencedTableName, referencedSchemaName, referencedColumnName)))
+                    {
+                        yield return new AddForeignKey
+                        {
+                            ForeignKeyObjectIdentifier = GetQuotedObjectIdentifierString(fkName, parentSchemaName),
+                            ParentObjectIdentifier = GetQuotedObjectIdentifierString(parentTableName, parentSchemaName),
+                            ParentObjectColumnName = parentColumnName,
+                            ReferencedObjectIdentifier = GetQuotedObjectIdentifierString(referencedTableName, referencedSchemaName),
+                            ReferencedObjectColumnName = referencedColumnName,
+                        };
+                    }
+                }
+            }
+
+            yield break;
         }
 
         private IEnumerable<AbstractDatabaseChange> CheckForNewColumns(EntitySet entitySet, string objectIdentifier)
@@ -183,15 +236,15 @@ namespace Horton.MigrationGenerator.EF6
             }
         }
 
-        private static string GetTableObjectIdentifierString(string table, string schema)
+        private static string GetQuotedObjectIdentifierString(string objectName, string schema)
         {
             if (string.IsNullOrEmpty(schema))
             {
-                return $"[{table}]";
+                return $"[{objectName}]";
             }
             else
             {
-                return $"[{schema}].[{table}]";
+                return $"[{schema}].[{objectName}]";
             }
         }
     }
