@@ -42,13 +42,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AbstractDatabaseChange.cs" />
-    <Compile Include="AlterColumn.cs" />
-    <Compile Include="CreateSchema.cs" />
-    <Compile Include="DropColumns.cs" />
-    <Compile Include="AddColumns.cs" />
-    <Compile Include="ColumnInfo.cs" />
-    <Compile Include="CreateTable.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

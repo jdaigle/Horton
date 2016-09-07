@@ -1,4 +1,4 @@
-﻿namespace Horton.MigrationGenerator.EF6
+﻿namespace Horton.MigrationGenerator
 {
     public sealed class HortonPlugin : IPlugin
     {

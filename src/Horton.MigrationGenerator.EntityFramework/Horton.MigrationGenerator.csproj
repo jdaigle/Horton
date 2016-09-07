@@ -7,8 +7,8 @@
     <ProjectGuid>{285F5B98-2A34-49C0-B32D-26F179560F00}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Horton.MigrationGenerator.EF6</RootNamespace>
-    <AssemblyName>Horton.MigrationGenerator.EF6</AssemblyName>
+    <RootNamespace>Horton.MigrationGenerator</RootNamespace>
+    <AssemblyName>Horton.MigrationGenerator</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -56,19 +56,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DiffTool.cs" />
+    <Compile Include="DDL\AbstractDatabaseChange.cs" />
+    <Compile Include="DDL\AddColumn.cs" />
+    <Compile Include="DDL\AlterColumn.cs" />
+    <Compile Include="DDL\ColumnInfo.cs" />
+    <Compile Include="DDL\CreateSchema.cs" />
+    <Compile Include="DDL\CreateTable.cs" />
+    <Compile Include="EF6\DiffTool.cs" />
     <Compile Include="AddMigrationCommand.cs" />
     <Compile Include="HortonPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Sys\Column.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Horton.MigrationGenerator\Horton.MigrationGenerator.csproj">
-      <Project>{3AFF076B-DF5B-4BD1-8DB5-307D5A700531}</Project>
-      <Name>Horton.MigrationGenerator</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Horton\Horton.csproj">
       <Project>{c98e1db0-d7f2-4523-a72f-22e683363118}</Project>
       <Name>Horton</Name>

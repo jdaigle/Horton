@@ -14,23 +14,8 @@ namespace Horton.SqlServer
 
         public SchemaInfo(HortonOptions options)
         {
-            Connection = new SqlConnection(CreateConnectionString(options));
+            Connection = new SqlConnection(options.CreateConnectionString());
             Connection.Open();
-        }
-
-        private static string CreateConnectionString(HortonOptions options)
-        {
-            var connectionStringBuilder = new SqlConnectionStringBuilder();
-            connectionStringBuilder.DataSource = options.ServerHostname;
-            connectionStringBuilder.InitialCatalog = options.DatabaseName;
-            connectionStringBuilder.IntegratedSecurity = options.IsIntegratedSecurity;
-            if (!options.IsIntegratedSecurity)
-            {
-                connectionStringBuilder.UserID = options.Username;
-                connectionStringBuilder.Password = options.Password;
-            }
-            connectionStringBuilder.Pooling = false;
-            return connectionStringBuilder.ToString();
         }
 
         public DbConnection Connection { get; }

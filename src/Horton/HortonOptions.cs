@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Data.SqlClient;
 using System.IO;
 
 namespace Horton
@@ -18,6 +19,21 @@ namespace Horton
         public bool Unattend { get; set; } = false;
 
         public bool IsIntegratedSecurity => string.IsNullOrWhiteSpace(Username);
+
+        public string CreateConnectionString()
+        {
+            var connectionStringBuilder = new SqlConnectionStringBuilder();
+            connectionStringBuilder.DataSource = ServerHostname;
+            connectionStringBuilder.InitialCatalog = DatabaseName;
+            connectionStringBuilder.IntegratedSecurity = IsIntegratedSecurity;
+            if (!IsIntegratedSecurity)
+            {
+                connectionStringBuilder.UserID = Username;
+                connectionStringBuilder.Password = Password;
+            }
+            connectionStringBuilder.Pooling = false;
+            return connectionStringBuilder.ToString();
+        }
 
         public bool AssertValid(out string firstValidationMessage)
         {
