@@ -58,14 +58,14 @@ namespace Horton.MigrationGenerator.EF6
                     var objectIdentifier = GetTableObjectIdentifierString(entitySet.Table, entitySet.Schema);
 
                     var existingObject = _targetConnection
-                        .Query<dynamic>("SELECT * FROM sys.objects WHERE object_id= OBJECT_ID(@objectIdentifier)", new { objectIdentifier })
+                        .Query<Sys.Object>("SELECT * FROM sys.objects WHERE object_id= OBJECT_ID(@objectIdentifier)", new { objectIdentifier })
                         .SingleOrDefault();
 
                     if (existingObject == null)
                     {
                         // CREATE TABLE
                         var entityName = TryGetEntityName(entitySet);
-                        yield return new CreateTable(objectIdentifier, entitySet.ElementType.Properties.Select(p => ColumnInfo.FromEF6(p)), "Create From Entity: " + entityName);
+                        yield return new CreateTable(objectIdentifier, entitySet.ElementType.Properties.Select(p => ColumnInfo.FromEF6(p, entitySet.Table)), "Create From Entity: " + entityName);
                     }
 
                     if (existingObject.type.Trim() == "V")
@@ -106,17 +106,27 @@ namespace Horton.MigrationGenerator.EF6
                 if (existingColumn == null)
                 {
                     // new column
-                    yield return new AddColumn(objectIdentifier, ColumnInfo.FromEF6(property));
+                    yield return new AddColumn(objectIdentifier, ColumnInfo.FromEF6(property, entitySet.Table));
+                }
+
+                if (property.IsStoreGeneratedIdentity != existingColumn.is_identity && typeName != "uniqueidentifier")
+                {
+                    yield return new AlterColumn(objectIdentifier, ColumnInfo.FromEF6(property, entitySet.Table), $"IDENTITY Attribute Altered For [{entityName}]. EF = {property.IsStoreGeneratedIdentity} DB = {existingColumn.is_identity}");
+                }
+
+                if (property.DefaultValue != null)
+                {
+
                 }
 
                 if (!string.Equals(typeName, existingColumn.TypeName, StringComparison.OrdinalIgnoreCase))
                 {
-                    yield return new AlterColumn(objectIdentifier, ColumnInfo.FromEF6(property), $"Data Type Altered For [{entityName}]. EF = {typeName} DB = {existingColumn.TypeName}");
+                    yield return new AlterColumn(objectIdentifier, ColumnInfo.FromEF6(property, entitySet.Table), $"Data Type Altered For [{entityName}]. EF = {typeName} DB = {existingColumn.TypeName}");
                 }
 
                 if (property.Nullable != existingColumn.is_nullable)
                 {
-                    yield return new AlterColumn(objectIdentifier, ColumnInfo.FromEF6(property), $"Nullability Altered For [{entityName}]. EF = {property.Nullable} DB = {existingColumn.is_nullable}");
+                    yield return new AlterColumn(objectIdentifier, ColumnInfo.FromEF6(property, entitySet.Table), $"Nullability Altered For [{entityName}]. EF = {property.Nullable} DB = {existingColumn.is_nullable}");
                 }
 
                 // Compare data type properties (len, precision, scale)
@@ -126,7 +136,7 @@ namespace Horton.MigrationGenerator.EF6
                     !property.IsMaxLengthConstant && property.MaxLength.HasValue && (property.MaxLength != existingColumn.max_length))
                 {
                     // length differs
-                    yield return new AlterColumn(objectIdentifier, ColumnInfo.FromEF6(property), $"Data Type Max Length Altered For [{entityName}]. EF = {(isMaxLen ? "(max)" : property.MaxLength.ToString())} DB = {(existingColumn.max_length == -1 ? "(max)" : existingColumn.max_length.ToString())}");
+                    yield return new AlterColumn(objectIdentifier, ColumnInfo.FromEF6(property, entitySet.Table), $"Data Type Max Length Altered For [{entityName}]. EF = {(isMaxLen ? "(max)" : property.MaxLength.ToString())} DB = {(existingColumn.max_length == -1 ? "(max)" : existingColumn.max_length.ToString())}");
                 }
 
                 byte? precision = property.IsPrecisionConstant ? null : property.Precision;
@@ -142,12 +152,12 @@ namespace Horton.MigrationGenerator.EF6
                 if (precision.HasValue && (precision != existingColumn.precision))
                 {
                     // scale differs
-                    yield return new AlterColumn(objectIdentifier, ColumnInfo.FromEF6(property), $"Data Type Precision Altered For [{entityName}]. EF = {precision} DB = {existingColumn.precision}");
+                    yield return new AlterColumn(objectIdentifier, ColumnInfo.FromEF6(property, entitySet.Table), $"Data Type Precision Altered For [{entityName}]. EF = {precision} DB = {existingColumn.precision}");
                 }
                 if (scale.HasValue && (scale != existingColumn.scale))
                 {
                     // scale differs
-                    yield return new AlterColumn(objectIdentifier, ColumnInfo.FromEF6(property), $"Data Type Scale Altered For [{entityName}]. EF = {scale} DB = {existingColumn.scale}");
+                    yield return new AlterColumn(objectIdentifier, ColumnInfo.FromEF6(property, entitySet.Table), $"Data Type Scale Altered For [{entityName}]. EF = {scale} DB = {existingColumn.scale}");
                 }
             }
 

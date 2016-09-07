@@ -27,7 +27,7 @@ namespace Horton.MigrationGenerator.DDL
 
             textWriter.Indent++;
             textWriter.Write($"ADD COLUMN");
-            Column.AppendDDL(textWriter);
+            Column.AppendDDL(textWriter, includeDefaultConstraints: true);
             textWriter.WriteLine(";");
             textWriter.Indent--;
 
