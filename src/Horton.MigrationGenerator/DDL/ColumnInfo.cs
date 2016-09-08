@@ -17,8 +17,6 @@ namespace Horton.MigrationGenerator.DDL
         public bool IsIdentity { get; set; }
         public string DefaultConstraintExpression { get; set; }
 
-        public bool? IsUnicode { get; set; }
-        public bool? IsFixedLength { get; set; }
         public int? MaxLength { get; set; }
         public bool IsMaxLength { get; set; }
         public byte? Precision { get; set; }
@@ -110,9 +108,7 @@ namespace Horton.MigrationGenerator.DDL
             {
                 IsNullable = property.Nullable,
                 IsMaxLength = isMaxLen,
-                IsUnicode = property.IsUnicode == true,
                 IsIdentity = property.IsStoreGeneratedIdentity && typeName != "uniqueidentifier",
-                IsFixedLength = property.IsFixedLength == true,
                 MaxLength = property.IsMaxLengthConstant ? null : property.MaxLength,
                 Scale = property.IsScaleConstant ? null : property.Scale,
                 Precision = property.IsMaxLengthConstant ? null : property.Precision,
