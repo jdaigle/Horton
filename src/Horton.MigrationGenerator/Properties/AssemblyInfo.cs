@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Horton.MigrationGenerator")]
+[assembly: AssemblyTitle("Horton.MigrationGenerator.EntityFramework")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Horton.MigrationGenerator")]
+[assembly: AssemblyProduct("Horton.MigrationGenerator.EntityFramework")]
 [assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("3aff076b-df5b-4bd1-8db5-307d5a700531")]
+[assembly: Guid("285f5b98-2a34-49c0-b32d-26f179560f00")]
 
 // Version information for an assembly consists of the following four values:
 //

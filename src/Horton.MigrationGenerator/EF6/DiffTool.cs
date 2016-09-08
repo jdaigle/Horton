@@ -113,10 +113,10 @@ FROM sys.foreign_key_columns fkc
                     var fkName = associationSet.Name;
                     var parentTableName = dependentEnd.EntitySet.Table;
                     var parentSchemaName = dependentEnd.EntitySet.Schema;
-                    var parentColumnName = constraint.ToProperties[0].Name;
+                    var parentColumnName = constraint.ToProperties.Single().Name;
                     var referencedTableName = principalEnd.EntitySet.Table;
                     var referencedSchemaName = principalEnd.EntitySet.Schema;
-                    var referencedColumnName = constraint.FromProperties[0].Name;
+                    var referencedColumnName = constraint.FromProperties.Single().Name;
 
                     if (!allFKs.Exists(fk => fk.Matches(parentTableName, parentSchemaName, parentColumnName, referencedTableName, referencedSchemaName, referencedColumnName)))
                     {

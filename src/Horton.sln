@@ -14,7 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Horton.MigrationGenerator", "Horton.MigrationGenerator.EntityFramework\Horton.MigrationGenerator.csproj", "{285F5B98-2A34-49C0-B32D-26F179560F00}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Horton.MigrationGenerator", "Horton.MigrationGenerator\Horton.MigrationGenerator.csproj", "{285F5B98-2A34-49C0-B32D-26F179560F00}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
