@@ -170,7 +170,7 @@ FROM sys.foreign_key_columns fkc
 
                 if (property.IsStoreGeneratedIdentity != existingColumn.is_identity && typeName != "uniqueidentifier")
                 {
-                    yield return new AlterColumn(objectIdentifier, ColumnInfo.FromEF6(property, entitySet.Table), $"IDENTITY Attribute Altered For [{entityName}]. EF = {property.IsStoreGeneratedIdentity} DB = {existingColumn.is_identity}");
+                    yield return new AlterColumn(objectIdentifier, ColumnInfo.FromEF6(property, entitySet.Table), $"IDENTITY Attribute Altered For \"{entityName}.{property.Name}\". SQL Type: {existingColumn.ToInfoString()}");
                 }
 
                 if (property.DefaultValue != null)
@@ -180,22 +180,21 @@ FROM sys.foreign_key_columns fkc
 
                 if (!string.Equals(typeName, existingColumn.TypeName, StringComparison.OrdinalIgnoreCase))
                 {
-                    yield return new AlterColumn(objectIdentifier, ColumnInfo.FromEF6(property, entitySet.Table), $"Data Type Altered For [{entityName}]. EF = {typeName} DB = {existingColumn.TypeName}");
+                    yield return new AlterColumn(objectIdentifier, ColumnInfo.FromEF6(property, entitySet.Table), $"Data Type Altered For \"{entityName}.{property.Name}\". SQL Type: {existingColumn.ToInfoString()}");
                 }
 
                 if (property.Nullable != existingColumn.is_nullable)
                 {
-                    yield return new AlterColumn(objectIdentifier, ColumnInfo.FromEF6(property, entitySet.Table), $"Nullability Altered For [{entityName}]. EF = {property.Nullable} DB = {existingColumn.is_nullable}");
+                    yield return new AlterColumn(objectIdentifier, ColumnInfo.FromEF6(property, entitySet.Table), $"Nullability Altered For \"{entityName}.{property.Name}\". SQL Type: {existingColumn.ToInfoString()}");
                 }
 
                 // Compare data type properties (len, precision, scale)
-
                 if (isMaxLen && existingColumn.max_length != -1 ||
                     !isMaxLen && existingColumn.max_length == -1 ||
                     !property.IsMaxLengthConstant && property.MaxLength.HasValue && (property.MaxLength != existingColumn.max_length))
                 {
                     // length differs
-                    yield return new AlterColumn(objectIdentifier, ColumnInfo.FromEF6(property, entitySet.Table), $"Data Type Max Length Altered For [{entityName}]. EF = {(isMaxLen ? "(max)" : property.MaxLength.ToString())} DB = {(existingColumn.max_length == -1 ? "(max)" : existingColumn.max_length.ToString())}");
+                    yield return new AlterColumn(objectIdentifier, ColumnInfo.FromEF6(property, entitySet.Table), $"Data Type Max Length Altered For \"{entityName}.{property.Name}\". SQL Type: {existingColumn.ToInfoString()}");
                 }
 
                 byte? precision = property.IsPrecisionConstant ? null : property.Precision;
@@ -211,12 +210,12 @@ FROM sys.foreign_key_columns fkc
                 if (precision.HasValue && (precision != existingColumn.precision))
                 {
                     // scale differs
-                    yield return new AlterColumn(objectIdentifier, ColumnInfo.FromEF6(property, entitySet.Table), $"Data Type Precision Altered For [{entityName}]. EF = {precision} DB = {existingColumn.precision}");
+                    yield return new AlterColumn(objectIdentifier, ColumnInfo.FromEF6(property, entitySet.Table), $"Data Type Precision Altered For \"{entityName}.{property.Name}\". SQL Type: {existingColumn.ToInfoString()}");
                 }
                 if (scale.HasValue && (scale != existingColumn.scale))
                 {
                     // scale differs
-                    yield return new AlterColumn(objectIdentifier, ColumnInfo.FromEF6(property, entitySet.Table), $"Data Type Scale Altered For [{entityName}]. EF = {scale} DB = {existingColumn.scale}");
+                    yield return new AlterColumn(objectIdentifier, ColumnInfo.FromEF6(property, entitySet.Table), $"Data Type Scale Altered For \"{entityName}.{property.Name}\". SQL Type: {existingColumn.ToInfoString()}");
                 }
             }
 

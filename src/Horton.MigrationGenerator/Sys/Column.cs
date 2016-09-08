@@ -14,5 +14,10 @@
         public bool is_nullable { get; set; }
         public bool is_identity { get; set; }
         public bool is_computed { get; set; }
+
+        public string ToInfoString()
+        {
+            return $"[{TypeName}],Len({max_length}),P({precision}),S({scale}) {(is_nullable ? "NULL" : "NOT NULL")}";
+        }
     }
 }
