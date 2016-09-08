@@ -162,6 +162,12 @@ FROM sys.foreign_key_columns fkc
                     yield return new AddColumn(objectIdentifier, ColumnInfo.FromEF6(property, entitySet.Table));
                 }
 
+                if (property.IsUnicode == true)
+                {
+                    // unicode (nchar,nvarchar) are storaged at double the length
+                    existingColumn.max_length = (short)(existingColumn.max_length / 2);
+                }
+
                 if (property.IsStoreGeneratedIdentity != existingColumn.is_identity && typeName != "uniqueidentifier")
                 {
                     yield return new AlterColumn(objectIdentifier, ColumnInfo.FromEF6(property, entitySet.Table), $"IDENTITY Attribute Altered For [{entityName}]. EF = {property.IsStoreGeneratedIdentity} DB = {existingColumn.is_identity}");
