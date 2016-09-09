@@ -9,7 +9,6 @@ namespace Horton
     {
         public override void Execute(HortonOptions options)
         {
-            var prevColor = Console.ForegroundColor;
             using (var schemaInfo = new SchemaInfo(options))
             {
                 schemaInfo.InitializeTable();
@@ -17,9 +16,9 @@ namespace Horton
                 var loader = new FileLoader(options.MigrationsDirectoryPath);
                 loader.LoadAllFiles();
 
-                Console.WriteLine("=== Info ===");
-                Console.WriteLine();
-                Console.WriteLine("The following scripts will execute...");
+                Program.PrintLine("=== Info ===");
+                Program.PrintLine();
+                Program.PrintLine("The following scripts will execute...");
 
                 var toExecute = new List<ScriptFile>();
                 bool willExecuteMigrations = true;
@@ -35,50 +34,42 @@ namespace Horton
                         }
                         if (file.ConflictOnContent)
                         {
-                            Console.ForegroundColor = ConsoleColor.Red;
-                            Console.WriteLine($"\nCONFLICT: The script \"{file.FileName}\" has changed since it was applied on \"{existingRecord.AppliedUTC.ToString("yyyy-MM-dd HH:mm:ss.ff")}\".");
-                            Console.ForegroundColor = prevColor;
+                            Program.PrintLine(ConsoleColor.Red, $"\nCONFLICT: The script \"{file.FileName}\" has changed since it was applied on \"{existingRecord.AppliedUTC.ToString("yyyy-MM-dd HH:mm:ss.ff")}\".");
                             willExecuteMigrations = false;
                             continue;
                         }
                     }
-                    Console.ForegroundColor = ConsoleColor.DarkGreen;
-                    Console.WriteLine($"\n\"{file.FileName}\" will execute on UPDATE.");
-                    Console.ForegroundColor = prevColor;
+                    Program.PrintLine(ConsoleColor.DarkGreen, $"\n\"{file.FileName}\" will execute on UPDATE.");
                     toExecute.Add(file);
                 }
 
                 if (!willExecuteMigrations)
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"\nWARNING! Migrations will not execute until conflicts are resolved.");
-                    Console.ForegroundColor = prevColor;
+                    Program.PrintLine(ConsoleColor.Red, $"\nWARNING! Migrations will not execute until conflicts are resolved.");
                     return;
                 }
 
                 if (!options.Unattend && toExecute.Any())
                 {
-                    Console.WriteLine($"\nAbout to execute {toExecute.Count} scripts. Press 'y' to continue.");
+                    Program.PrintLine($"\nAbout to execute {toExecute.Count} scripts. Press 'y' to continue.");
                     var c = Console.ReadKey();
-                    Console.WriteLine();
+                    Program.PrintLine();
                     if (c.KeyChar != 'y' && c.KeyChar != 'Y')
                     {
-                        Console.WriteLine("Aborting...");
+                        Program.PrintLine("Aborting...");
                         return;
                     }
                 }
 
                 foreach (var file in toExecute)
                 {
-                    Console.ForegroundColor = ConsoleColor.DarkGreen;
-                    Console.Write($"\nApplying \"{file.FileName}\"... ");
+                    Program.Print(ConsoleColor.DarkGreen, $"\nApplying \"{file.FileName}\"... ");
                     schemaInfo.ApplyMigration(file);
-                    Console.WriteLine("done.");
-                    Console.ForegroundColor = prevColor;
+                    Program.PrintLine(ConsoleColor.DarkGreen, "done.");
                 }
 
-                Console.WriteLine();
-                Console.WriteLine("Finished.");
+                Program.PrintLine();
+                Program.PrintLine("Finished.");
             }
         }
     }

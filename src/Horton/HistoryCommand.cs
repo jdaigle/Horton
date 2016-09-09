@@ -11,13 +11,13 @@ namespace Horton
             {
                 schemaInfo.InitializeTable();
 
-                Console.WriteLine("=== History ===");
-                Console.WriteLine();
-                Console.WriteLine("Timestamp (UTC)        | File Name            | User");
-                Console.WriteLine("---------------------------------------------------------------------");
+                Program.PrintLine("=== History ===");
+                Program.PrintLine();
+                Program.PrintLine("Timestamp (UTC)        | File Name            | User");
+                Program.PrintLine("---------------------------------------------------------------------");
                 foreach (var item in schemaInfo.AppliedMigrations)
                 {
-                    Console.WriteLine($"{item.AppliedUTC.ToString("yyyy-MM-dd HH:mm:ss.ff")} | {TrimOrPad(item.FileName, 20)} | {TrimOrPad(item.SystemUser, 20)}");
+                    Program.PrintLine($"{item.AppliedUTC.ToString("yyyy-MM-dd HH:mm:ss.ff")} | {TrimOrPad(item.FileName, 20)} | {TrimOrPad(item.SystemUser, 20)}");
                 }
             }
         }

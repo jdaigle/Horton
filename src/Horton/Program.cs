@@ -16,14 +16,51 @@ namespace Horton
             }
             catch (Exception ex)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.Error.WriteLine(ex.Message);
-                Console.Error.WriteLine(ex.StackTrace);
+                PrintErrorLine(ex.Message);
+                PrintErrorLine(ex.StackTrace);
             }
             finally
             {
                 Console.ResetColor();
             }
+        }
+
+        public static void Print(string value)
+        {
+            Console.Write(value);
+        }
+
+        public static void PrintLine(string value)
+        {
+            Console.WriteLine(value);
+        }
+
+        public static void PrintLine()
+        {
+            Console.WriteLine();
+        }
+
+        private static readonly ConsoleColor _originalConsoleConsole = Console.ForegroundColor;
+
+        public static void Print(ConsoleColor color, string value)
+        {
+            Console.ForegroundColor = color;
+            Console.Write(value);
+            Console.ForegroundColor = _originalConsoleConsole;
+        }
+
+        public static void PrintLine(ConsoleColor color, string value)
+        {
+            Console.ForegroundColor = color;
+            Console.WriteLine(value);
+            Console.ForegroundColor = _originalConsoleConsole;
+        }
+
+        public static void PrintErrorLine(string value)
+        {
+            Console.ForegroundColor = ConsoleColor.Red;
+            Console.Error.WriteLine(value);
+            Console.ForegroundColor = _originalConsoleConsole;
         }
 
         private static void MainInternal(string[] args)
