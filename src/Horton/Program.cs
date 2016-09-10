@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Horton.SqlServer;
 using NDesk.Options;
 
 namespace Horton
@@ -18,6 +17,9 @@ namespace Horton
             {
                 PrintErrorLine(ex.Message);
                 PrintErrorLine(ex.StackTrace);
+#if DEBUG
+                throw;
+#endif
             }
             finally
             {
