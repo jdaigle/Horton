@@ -14,11 +14,7 @@ namespace Horton.MigrationGenerator.DDL
         public override void AppendDDL(IndentedTextWriter textWriter)
         {
             textWriter.WriteLine($"IF NOT EXISTS (SELECT * FROM sys.schemas WHERE name = {SchemaName})");
-
-            textWriter.Indent++;
             textWriter.WriteLine($"CREATE TABLE {SchemaName};");
-            textWriter.Indent--;
-
             textWriter.WriteLine("GO");
         }
     }

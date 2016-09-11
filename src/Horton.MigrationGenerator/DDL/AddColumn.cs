@@ -17,7 +17,6 @@ namespace Horton.MigrationGenerator.DDL
         {
             textWriter.WriteLine($"IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID(N'{ObjectIdentitifer}') AND name = '{Column.Name}')");
 
-            textWriter.Indent++;
             textWriter.WriteLine($"ALTER TABLE {ObjectIdentitifer}");
 
             textWriter.Indent++;
@@ -26,7 +25,6 @@ namespace Horton.MigrationGenerator.DDL
             textWriter.WriteLine(";");
             textWriter.Indent--;
 
-            textWriter.Indent--;
 
             textWriter.WriteLine("GO");
         }
