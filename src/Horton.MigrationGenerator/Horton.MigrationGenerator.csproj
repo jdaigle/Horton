@@ -76,6 +76,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sys\CheckConstraint.cs" />
     <Compile Include="Sys\ForeignKey.cs" />
+    <Compile Include="Sys\ForeignKeyColumn.cs" />
     <Compile Include="Sys\Index.cs" />
     <Compile Include="Sys\IndexedColumn.cs" />
     <Compile Include="Sys\Object.cs" />

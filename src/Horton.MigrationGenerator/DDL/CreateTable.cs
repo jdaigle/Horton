@@ -78,9 +78,9 @@ namespace Horton.MigrationGenerator.DDL
             {
                 ForeignKeyObjectIdentifier = x.ForeignKeyName,
                 ParentObjectIdentifier = SqlUtil.GetQuotedObjectIdentifierString(x.Parent.name, x.Parent.Schema.name),
-                ParentObjectColumnName = x.ParentColumnName,
+                ParentObjectColumns = x.Columns.OrderBy(c => c.constraint_object_id).Select(c => c.ParentColumnName),
                 ReferencedObjectIdentifier = SqlUtil.GetQuotedObjectIdentifierString(x.Referenced.name, x.Referenced.Schema.name),
-                ReferencedObjectColumnName = x.ReferencedColumnName,
+                ReferencedObjectColumns = x.Columns.OrderBy(c => c.constraint_object_id).Select(c => c.ReferencedColumnName),
             }));
 
             createTable.Constraints.AddRange(table.TableCheckConstraints.Select(x => new TableCheckConstraintInfo

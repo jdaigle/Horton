@@ -83,7 +83,12 @@ namespace Horton.MigrationGenerator.EF6
 
         private IEnumerable<AbstractDatabaseChange> CheckForNewForeignKeyConstraints(StoreItemCollection storeItemCollection)
         {
+            var fkCols = _targetConnection.Query<Sys.ForeignKeyColumn>(Sys.ForeignKeyColumn.SQL_SelectAll).ToLookup(x => x.constraint_object_id);
             var allFKs = _targetConnection.Query<Sys.ForeignKey>(Sys.ForeignKey.SQL_SelectAll).ToList();
+            foreach (var fk in allFKs)
+            {
+                fk.Columns.AddRange(fkCols[fk.object_id]);
+            }
 
             foreach (var container in storeItemCollection.GetItems<EntityContainer>())
             {
@@ -107,9 +112,9 @@ namespace Horton.MigrationGenerator.EF6
                         {
                             ForeignKeyObjectIdentifier = SqlUtil.GetQuotedObjectIdentifierString(fkName, parentSchemaName),
                             ParentObjectIdentifier = SqlUtil.GetQuotedObjectIdentifierString(parentTableName, parentSchemaName),
-                            ParentObjectColumnName = parentColumnName,
+                            ParentObjectColumns = new[] { parentColumnName },
                             ReferencedObjectIdentifier = SqlUtil.GetQuotedObjectIdentifierString(referencedTableName, referencedSchemaName),
-                            ReferencedObjectColumnName = referencedColumnName,
+                            ReferencedObjectColumns = new[] { referencedColumnName },
                         });
                     }
                 }

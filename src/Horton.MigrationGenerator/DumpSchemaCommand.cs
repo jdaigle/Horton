@@ -92,9 +92,11 @@ namespace Horton.MigrationGenerator
                 Program.PrintLine("...done.");
 
                 Program.Print("Querying foreign keys...");
+                var fkCols = connection.Query<Sys.ForeignKeyColumn>(Sys.ForeignKeyColumn.SQL_SelectAll).ToLookup(x => x.constraint_object_id);
                 var fks = connection.Query<Sys.ForeignKey>(Sys.ForeignKey.SQL_SelectAll).ToList();
                 foreach (var fk in fks)
                 {
+                    fk.Columns.AddRange(fkCols[fk.object_id]);
                     fk.Parent = tables[fk.parent_object_id];
                     fk.Parent.ForeignKeys.Add(fk);
                     fk.Referenced = tables[fk.referenced_object_id];
