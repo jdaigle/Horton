@@ -129,6 +129,7 @@ namespace Horton.MigrationGenerator
                 {
                     table.Schema = schemas[table.schema_id];
                     table.ForeignKeyDeptch = FKDepthRecursive(table);
+                    table.TableCheckConstraints.AddRange(connection.Query<Sys.CheckConstraint>("SELECT * FROM sys.check_constraints WHERE parent_column_id = 0 AND parent_object_id= @object_id", new { table.object_id }));
                     if (table.Columns.Count == 0)
                     {
                         table.Columns.AddRange(connection.Query<Sys.Column>(Sys.Column.SQL_SelectAll + " WHERE c.object_id= @object_id", new { table.object_id }));

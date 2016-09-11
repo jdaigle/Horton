@@ -19,13 +19,14 @@ namespace Horton.MigrationGenerator.DDL
         public bool IsIdentity { get; set; }
         public bool IsRowGuid { get; set; }
         public string DefaultConstraintExpression { get; set; }
+        public string CheckConstraintExpression { get; set; }
 
         public int? MaxLength { get; set; }
         public bool IsMaxLength { get; set; }
         public byte? Precision { get; set; }
         public byte? Scale { get; set; }
 
-        public void AppendDDL(IndentedTextWriter textWriter, bool includeDefaultConstraints)
+        public void AppendDDL(IndentedTextWriter textWriter, bool includeConstraints)
         {
             textWriter.Write("[");
             textWriter.Write(Name);
@@ -36,11 +37,15 @@ namespace Horton.MigrationGenerator.DDL
             textWriter.Write(PrintDefaultValue());
             textWriter.Write(PrintNull());
             textWriter.Write(PrintRowGuid());
-            if (includeDefaultConstraints)
+            if (includeConstraints)
             {
                 textWriter.Write(PrintDefaultConstraints());
             }
             textWriter.Write(PrintIdentity());
+            if (includeConstraints)
+            {
+                textWriter.Write(PrintCheckConstraints());
+            }
         }
 
         private string PrintRowGuid()
@@ -101,6 +106,16 @@ namespace Horton.MigrationGenerator.DDL
             }
 
             return " " + DefaultConstraintExpression;
+        }
+
+        private string PrintCheckConstraints()
+        {
+            if (CheckConstraintExpression == null)
+            {
+                return "";
+            }
+
+            return " " + CheckConstraintExpression;
         }
 
         internal static ColumnInfo FromSQL(Column column)
@@ -190,6 +205,15 @@ namespace Horton.MigrationGenerator.DDL
                 if (!column.default_is_system_named)
                 {
                     columnInfo.DefaultConstraintExpression = "CONSTRAINT " + column.default_name + " " + columnInfo.DefaultConstraintExpression;
+                }
+            }
+
+            if (!string.IsNullOrEmpty(column.check_constraint_definition))
+            {
+                columnInfo.CheckConstraintExpression = "CHECK " + column.check_constraint_definition;
+                if (!column.check_constraint_is_system_named)
+                {
+                    columnInfo.CheckConstraintExpression = "CONSTRAINT " + column.check_constraint_name + " " + columnInfo.CheckConstraintExpression;
                 }
             }
 

@@ -39,7 +39,7 @@ namespace Horton.MigrationGenerator.DDL
             textWriter.Indent++;
             foreach (var column in Columns)
             {
-                column.AppendDDL(textWriter, includeDefaultConstraints: true);
+                column.AppendDDL(textWriter, includeConstraints: true);
                 textWriter.WriteLine(",");
             }
             foreach (var constraint in Constraints)
@@ -81,6 +81,13 @@ namespace Horton.MigrationGenerator.DDL
                 ParentObjectColumnName = x.ParentColumnName,
                 ReferencedObjectIdentifier = SqlUtil.GetQuotedObjectIdentifierString(x.Referenced.name, x.Referenced.Schema.name),
                 ReferencedObjectColumnName = x.ReferencedColumnName,
+            }));
+
+            createTable.Constraints.AddRange(table.TableCheckConstraints.Select(x => new TableCheckConstraintInfo
+            {
+                ConstraintName = x.name,
+                IsSystemNamed = x.is_system_named,
+                Definition = x.definition,
             }));
             return createTable;
         }

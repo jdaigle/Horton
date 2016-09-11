@@ -20,5 +20,7 @@ namespace Horton.MigrationGenerator.Sys
         public int ForeignKeyDeptch { get; internal set; }
 
         public IList<Index> Indexes { get; } = new List<Index>();
+
+        public List<CheckConstraint> TableCheckConstraints { get; } = new List<CheckConstraint>();
     }
 }

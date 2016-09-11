@@ -64,6 +64,7 @@
     <Compile Include="DDL\CreateSchema.cs" />
     <Compile Include="DDL\CreateTable.cs" />
     <Compile Include="DDL\ITableConstraintInfo.cs" />
+    <Compile Include="DDL\TableCheckConstraintInfo.cs" />
     <Compile Include="DDL\UniqueConstraintInfo.cs" />
     <Compile Include="DDL\PrimaryKeyInfo.cs" />
     <Compile Include="DDL\ForeignKeyInfo.cs" />
@@ -73,6 +74,7 @@
     <Compile Include="AddMigrationCommand.cs" />
     <Compile Include="HortonPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Sys\CheckConstraint.cs" />
     <Compile Include="Sys\ForeignKey.cs" />
     <Compile Include="Sys\Index.cs" />
     <Compile Include="Sys\IndexedColumn.cs" />
