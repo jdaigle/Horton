@@ -5,6 +5,7 @@
         public void Load()
         {
             HortonCommands.RegisterCommand(new AddMigrationCommand());
+            HortonCommands.RegisterCommand(new DumpSchemaCommand());
         }
     }
 }

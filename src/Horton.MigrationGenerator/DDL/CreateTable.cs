@@ -1,5 +1,7 @@
 ﻿using System.CodeDom.Compiler;
 using System.Collections.Generic;
+using System.Linq;
+using Horton.MigrationGenerator.Sys;
 
 namespace Horton.MigrationGenerator.DDL
 {
@@ -43,6 +45,13 @@ namespace Horton.MigrationGenerator.DDL
             textWriter.Indent--;
 
             textWriter.WriteLine("GO");
+        }
+
+        internal static CreateTable FromSQL(Table table)
+        {
+            var createTable = new CreateTable(SqlUtil.GetQuotedObjectIdentifierString(table.name, table.Schema.name), table.Columns.Select(c => ColumnInfo.FromSQL(c)) , "");
+
+            return createTable;
         }
     }
 }

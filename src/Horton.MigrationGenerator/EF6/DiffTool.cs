@@ -54,7 +54,7 @@ namespace Horton.MigrationGenerator.EF6
                 var entitySets = container.BaseEntitySets.OfType<EntitySet>().OrderBy(s => s.Name);
                 foreach (var entitySet in entitySets)
                 {
-                    var objectIdentifier = GetQuotedObjectIdentifierString(entitySet.Table, entitySet.Schema);
+                    var objectIdentifier = SqlUtil.GetQuotedObjectIdentifierString(entitySet.Table, entitySet.Schema);
 
                     var existingObject = _targetConnection
                         .Query<Sys.Object>("SELECT * FROM sys.objects WHERE object_id= OBJECT_ID(@objectIdentifier)", new { objectIdentifier })
@@ -83,24 +83,7 @@ namespace Horton.MigrationGenerator.EF6
 
         private IEnumerable<AbstractDatabaseChange> CheckForNewForeignKeyConstraints(StoreItemCollection storeItemCollection)
         {
-            var allFKs = _targetConnection.Query<Sys.ForeignKey>(@"
-SELECT
-    fkc.*,
-    ForeignKeyName = fk.name,
-    ParentObjectName = po.name,
-    ParentSchemaName = ps.name,
-    ParentColumnName = pc.name,
-    ReferencedObjectName = ro.name,
-    ReferencedSchemaName = rs.name,
-    ReferencedColumnName = rc.name
-FROM sys.foreign_key_columns fkc
-    INNER JOIN sys.foreign_keys fk ON fk.object_id = fkc.constraint_object_id
-    INNER JOIN sys.objects po ON po.object_id = fkc.parent_object_id
-    INNER JOIN sys.schemas ps ON ps.schema_id = po.schema_id
-    INNER JOIN sys.columns pc ON pc.column_id = fkc.parent_column_id AND pc.object_id = fkc.parent_object_id
-    INNER JOIN sys.objects ro ON ro.object_id = fkc.referenced_object_id
-    INNER JOIN sys.schemas rs ON rs.schema_id = ro.schema_id
-    INNER JOIN sys.columns rc ON rc.column_id = fkc.referenced_column_id AND rc.object_id = fkc.referenced_object_id").ToList();
+            var allFKs = _targetConnection.Query<Sys.ForeignKey>(Sys.ForeignKey.SQL_SelectAll).ToList();
 
             foreach (var container in storeItemCollection.GetItems<EntityContainer>())
             {
@@ -122,10 +105,10 @@ FROM sys.foreign_key_columns fkc
                     {
                         yield return new AddForeignKey
                         {
-                            ForeignKeyObjectIdentifier = GetQuotedObjectIdentifierString(fkName, parentSchemaName),
-                            ParentObjectIdentifier = GetQuotedObjectIdentifierString(parentTableName, parentSchemaName),
+                            ForeignKeyObjectIdentifier = SqlUtil.GetQuotedObjectIdentifierString(fkName, parentSchemaName),
+                            ParentObjectIdentifier = SqlUtil.GetQuotedObjectIdentifierString(parentTableName, parentSchemaName),
                             ParentObjectColumnName = parentColumnName,
-                            ReferencedObjectIdentifier = GetQuotedObjectIdentifierString(referencedTableName, referencedSchemaName),
+                            ReferencedObjectIdentifier = SqlUtil.GetQuotedObjectIdentifierString(referencedTableName, referencedSchemaName),
                             ReferencedObjectColumnName = referencedColumnName,
                         };
                     }
@@ -238,18 +221,6 @@ FROM sys.foreign_key_columns fkc
                 {
                     yield return new CreateSchema(schemaName);
                 }
-            }
-        }
-
-        private static string GetQuotedObjectIdentifierString(string objectName, string schema)
-        {
-            if (string.IsNullOrEmpty(schema))
-            {
-                return $"[{objectName}]";
-            }
-            else
-            {
-                return $"[{schema}].[{objectName}]";
             }
         }
     }
