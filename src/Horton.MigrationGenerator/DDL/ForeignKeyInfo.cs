@@ -14,7 +14,7 @@ namespace Horton.MigrationGenerator.DDL
 
         public void AppendDDL(IndentedTextWriter textWriter)
         {
-            textWriter.WriteLine($"CONSTRAINT {ForeignKeyObjectIdentifier}");
+            textWriter.WriteLine($"CONSTRAINT [{ForeignKeyObjectIdentifier}]");
             textWriter.WriteLine($"    FOREIGN KEY ({string.Join(",", ParentObjectColumns.Select(c => "[" + c + "]"))})");
             textWriter.Write($"    REFERENCES {ReferencedObjectIdentifier} ({string.Join(",", ReferencedObjectColumns.Select(c => "[" + c + "]"))})");
         }

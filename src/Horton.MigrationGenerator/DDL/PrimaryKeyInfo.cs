@@ -11,7 +11,7 @@ namespace Horton.MigrationGenerator.DDL
 
         public void AppendDDL(IndentedTextWriter textWriter)
         {
-            textWriter.Write($"CONSTRAINT {PrimaryKeyName} PRIMARY KEY {(IsNonClustered ? "NONCLUSTERED" : "CLUSTERED")} ({string.Join(",", Columns)})");
+            textWriter.Write($"CONSTRAINT [{PrimaryKeyName}] PRIMARY KEY {(IsNonClustered ? "NONCLUSTERED" : "CLUSTERED")} ({string.Join(",", Columns)})");
         }
     }
 }

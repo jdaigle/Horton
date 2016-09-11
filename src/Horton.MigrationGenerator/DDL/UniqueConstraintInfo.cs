@@ -14,7 +14,7 @@ namespace Horton.MigrationGenerator.DDL
         {
             if (!IsSystemNamed)
             {
-                textWriter.Write($"CONSTRAINT {ConstraintName} ");
+                textWriter.Write($"CONSTRAINT [{ConstraintName}] ");
             }
             textWriter.Write($"UNIQUE {(IsNonClustered ? "NONCLUSTERED" : "CLUSTERED")} ({string.Join(",", Columns)})");
         }
