@@ -25,8 +25,26 @@ namespace Horton.MigrationGenerator.DDL
         public byte? Precision { get; set; }
         public byte? Scale { get; set; }
 
+        public bool IsComputed { get; set; }
+        public string ComputedColumnDefinitionExpression { get; set; }
+        public bool IsPersisted { get; set; }
+
         public void AppendDDL(IndentedTextWriter textWriter, bool includeConstraints)
         {
+            if (IsComputed)
+            {
+                textWriter.Write("[");
+                textWriter.Write(Name);
+                textWriter.Write("] AS ");
+                textWriter.Write(ComputedColumnDefinitionExpression);
+                if (IsPersisted)
+                {
+                    textWriter.Write(" PERSISTED");
+                    textWriter.Write(PrintNull());
+                }
+                return;
+            }
+
             textWriter.Write("[");
             textWriter.Write(Name);
             textWriter.Write("] [");
@@ -128,6 +146,9 @@ namespace Horton.MigrationGenerator.DDL
                 Scale = column.scale,
                 Precision = column.precision,
                 IsRowGuid = column.is_rowguidcol,
+                IsComputed = column.is_computed,
+                ComputedColumnDefinitionExpression = column.computed_column_definition,
+                IsPersisted = column.is_persisted,
             };
 
             switch (columnInfo.DataType)

@@ -13,7 +13,6 @@
         public byte scale { get; set; }
         public bool is_nullable { get; set; }
         public bool is_identity { get; set; }
-        public bool is_computed { get; set; }
         public bool is_rowguidcol { get; set; }
         public bool is_user_defined { get; set; }
 
@@ -25,6 +24,10 @@
         public string check_constraint_name { get; set; }
         public string check_constraint_definition { get; set; }
         public bool check_constraint_is_system_named { get; set; }
+
+        public bool is_computed { get; set; }
+        public string computed_column_definition { get; set; }
+        public bool is_persisted { get; set; }
 
         public string ToInfoString()
         {
@@ -42,10 +45,13 @@ SELECT
     , chk.name AS check_constraint_name
     , chk.[definition] AS check_constraint_definition
     , chk.is_system_named AS check_constraint_is_system_named
+    , cmpt.[definition] AS computed_column_definition
+    , cmpt.is_persisted
 FROM sys.columns c
     INNER JOIN sys.types t ON t.user_type_id = c.user_type_id
     LEFT JOIN sys.default_constraints df ON df.object_id = c.default_object_id
     LEFT JOIN sys.check_constraints chk ON chk.parent_object_id = c.object_id AND chk.parent_column_id = c.column_id
+    LEFT JOIN sys.computed_columns cmpt ON cmpt.object_id = c.object_id AND cmpt.column_id = c.column_id
 ";
     }
 }
