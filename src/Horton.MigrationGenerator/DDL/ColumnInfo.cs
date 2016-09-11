@@ -170,6 +170,7 @@ namespace Horton.MigrationGenerator.DDL
                 case "hierarchyid":
                 case "geometry":
                 case "geography":
+                case "xml":
                     columnInfo.IsMaxLength = false;
                     columnInfo.MaxLength = null;
                     columnInfo.Scale = null;
@@ -189,7 +190,6 @@ namespace Horton.MigrationGenerator.DDL
                     columnInfo.Precision = null;
                     columnInfo.Scale = null;
                     break;
-                case "xml":
                 case "varchar":
                 case "char":
                 case "binary":
