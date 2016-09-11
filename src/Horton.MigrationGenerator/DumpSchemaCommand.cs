@@ -54,6 +54,7 @@ namespace Horton.MigrationGenerator
                     if (table.ForeignKeys.Count == 0)
                     {
                         ddl.Add(CreateTable.FromSQL(table));
+                        ddl.AddRange(table.Indexes.Where(x => !(x.is_primary_key || x.is_unique_constraint)).Select(x => CreateIndex.FromSQL(table, x)));
                         tables.Remove(table);
                         createdTables.Add(table);
                         continue;
@@ -62,6 +63,7 @@ namespace Horton.MigrationGenerator
                     {
                         var createTable = CreateTable.FromSQL(table);
                         ddl.Add(CreateTable.FromSQL(table));
+                        ddl.AddRange(table.Indexes.Where(x => !(x.is_primary_key || x.is_unique_constraint)).Select(x => CreateIndex.FromSQL(table, x)));
                         tables.Remove(table);
                         createdTables.Add(table);
                         continue;

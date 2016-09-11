@@ -31,6 +31,7 @@ SELECT
     , c.[type_desc] AS constraint_type
 FROM sys.indexes i
     LEFT JOIN sys.key_constraints c ON i.object_id = c.parent_object_id AND i.index_id = c.unique_index_id
+WHERE i.[type] IN (1,2)
 ";
     }
 }

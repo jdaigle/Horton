@@ -61,6 +61,7 @@
     <Compile Include="DDL\AddForeignKey.cs" />
     <Compile Include="DDL\AlterColumn.cs" />
     <Compile Include="DDL\ColumnInfo.cs" />
+    <Compile Include="DDL\CreateIndex.cs" />
     <Compile Include="DDL\CreateSchema.cs" />
     <Compile Include="DDL\CreateTable.cs" />
     <Compile Include="DDL\ITableConstraintInfo.cs" />
