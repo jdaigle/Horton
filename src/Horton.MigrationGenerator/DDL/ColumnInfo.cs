@@ -1,5 +1,4 @@
-﻿using System;
-using System.CodeDom.Compiler;
+﻿using System.CodeDom.Compiler;
 using System.Data.Entity.Core.Metadata.Edm;
 using Horton.MigrationGenerator.Sys;
 
