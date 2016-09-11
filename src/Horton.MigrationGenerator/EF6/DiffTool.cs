@@ -150,7 +150,7 @@ namespace Horton.MigrationGenerator.EF6
                     yield return new AddColumn(objectIdentifier, ColumnInfo.FromEF6(property, entitySet.Table));
                 }
 
-                if (property.IsUnicode == true)
+                if (property.IsUnicode == true && existingColumn.max_length > 0)
                 {
                     // unicode (nchar,nvarchar) are storaged at double the length
                     existingColumn.max_length = (short)(existingColumn.max_length / 2);
