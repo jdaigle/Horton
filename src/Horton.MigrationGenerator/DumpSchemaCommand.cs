@@ -59,7 +59,7 @@ namespace Horton.MigrationGenerator
                         createdTables.Add(table);
                         continue;
                     }
-                    if (table.ForeignKeys.All(fk => createdTables.Contains(fk.Referenced)))
+                    if (table.ForeignKeys.All(fk => createdTables.Contains(fk.Referenced) || fk.Columns.All(c => c.ParentColumn.is_nullable)))
                     {
                         var createTable = CreateTable.FromSQL(table);
                         ddl.Add(CreateTable.FromSQL(table));
@@ -75,6 +75,7 @@ namespace Horton.MigrationGenerator
                 {
                     throw new Exception("The depedency graph could not resolve the build order.");
                 }
+                lastCount = tables.Count;
             }
             return ddl;
         }
@@ -116,14 +117,6 @@ namespace Horton.MigrationGenerator
                     {
                         index.Table = tables[index.object_id];
                         index.Table.Indexes.Add(index);
-                        if (index.Table.Columns.Count == 0)
-                        {
-                            index.Table.Columns.AddRange(connection.Query<Sys.Column>(Sys.Column.SQL_SelectAll + " WHERE c.object_id= @object_id", new { index.Table.object_id }));
-                        }
-                        foreach (var column in index.Columns)
-                        {
-                            column.Column = index.Table.Columns.Single(x => x.column_id == column.column_id);
-                        }
                     }
                 }
                 Program.PrintLine("...done.");
@@ -132,15 +125,31 @@ namespace Horton.MigrationGenerator
                 foreach (var table in tables.Values)
                 {
                     table.Schema = schemas[table.schema_id];
-                    table.ForeignKeyDeptch = FKDepthRecursive(table);
+
                     table.TableCheckConstraints.AddRange(connection.Query<Sys.CheckConstraint>("SELECT * FROM sys.check_constraints WHERE parent_column_id = 0 AND parent_object_id= @object_id", new { table.object_id }));
-                    if (table.Columns.Count == 0)
+
+                    table.Columns.AddRange(connection.Query<Sys.Column>(Sys.Column.SQL_SelectAll + " WHERE c.object_id= @object_id", new { table.object_id }));
+
+                    foreach (var fk in table.ForeignKeys)
                     {
-                        table.Columns.AddRange(connection.Query<Sys.Column>(Sys.Column.SQL_SelectAll + " WHERE c.object_id= @object_id", new { table.object_id }));
+                        foreach (var col in fk.Columns)
+                        {
+                            col.ParentColumn = table.Columns.Single(x => x.column_id == col.parent_column_id);
+                        }
                     }
-                    if (FollowFK(table).Contains(table))
+                    foreach (var fk in table.OutboundForeignKeys)
                     {
-                        Debug.Fail("Circular Reference Detected!");
+                        foreach (var col in fk.Columns)
+                        {
+                            col.ReferencedColumn = table.Columns.Single(x => x.column_id == col.referenced_column_id);
+                        }
+                    }
+                    foreach (var idx in table.Indexes)
+                    {
+                        foreach (var col in idx.Columns)
+                        {
+                            col.Column = table.Columns.Single(x => x.column_id == col.column_id);
+                        }
                     }
                 }
                 Program.PrintLine("...done.");
@@ -148,28 +157,6 @@ namespace Horton.MigrationGenerator
                 connection.Close();
 
                 return tables.Values.OrderBy(x => x.create_date).ThenBy(x => x.Schema.name).ThenBy(x => x.name).ToList();
-            }
-        }
-
-        public static int FKDepthRecursive(Sys.Table root)
-        {
-            if (root.ForeignKeys.Count == 0)
-            {
-                return 0;
-            }
-            return root.ForeignKeys.Max(fk => FKDepthRecursive(fk.Referenced)) + 1;
-        }
-
-        public static IEnumerable<Sys.Table> FollowFK(Sys.Table root)
-        {
-            foreach (var fk in root.ForeignKeys)
-            {
-                yield return fk.Referenced;
-
-                foreach (var child in FollowFK(fk.Referenced))
-                {
-                    yield return child;
-                }
             }
         }
     }

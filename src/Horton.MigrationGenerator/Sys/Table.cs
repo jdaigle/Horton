@@ -17,7 +17,6 @@ namespace Horton.MigrationGenerator.Sys
 
         public IList<ForeignKey> ForeignKeys { get; } = new List<ForeignKey>();
         public IList<ForeignKey> OutboundForeignKeys { get; } = new List<ForeignKey>();
-        public int ForeignKeyDeptch { get; internal set; }
 
         public IList<Index> Indexes { get; } = new List<Index>();
 

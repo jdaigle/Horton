@@ -8,10 +8,12 @@
         public int parent_object_id { get; set; }
         public int parent_column_id { get; set; }
         public string ParentColumnName { get; set; }
+        public Column ParentColumn { get; set; }
 
         public int referenced_object_id { get; set; }
         public int referenced_column_id { get; set; }
         public string ReferencedColumnName { get; set; }
+        public Column ReferencedColumn { get; set; }
 
         public const string SQL_SelectAll = @"
 SELECT
