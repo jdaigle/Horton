@@ -44,6 +44,12 @@ namespace Horton.MigrationGenerator
         {
             var ddl = new List<AbstractDatabaseChange>();
 
+            var schemaToAdd = tables.Select(x => x.Schema.name).Where(x => x != "dbo").Distinct();
+            foreach (var schema in schemaToAdd)
+            {
+                ddl.Add(new CreateSchema(schema));
+            }
+
             var createdTables = new List<Sys.Table>();
 
             // if no circular dependencies exist, then this function _should_ complete
