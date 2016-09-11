@@ -15,8 +15,8 @@ namespace Horton.MigrationGenerator.Sys
         public int column_id { get; set; }
         public int key_ordinal { get; set; }
         public int partition_ordinal { get; set; }
-        public int is_descending_key { get; set; }
-        public int is_included_column { get; set; }
+        public bool is_descending_key { get; set; }
+        public bool is_included_column { get; set; }
 
         public Column Column { get; internal set; }
     }

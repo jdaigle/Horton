@@ -4,21 +4,25 @@ namespace Horton.MigrationGenerator.DDL
 {
     public class AddForeignKey : AbstractDatabaseChange
     {
-        public string ForeignKeyObjectIdentifier { get; set; }
-        public string ParentObjectIdentifier { get; set; }
-        public string ParentObjectColumnName { get; set; }
-        public string ReferencedObjectIdentifier { get; set; }
-        public string ReferencedObjectColumnName { get; set; }
+        public AddForeignKey(ForeignKeyInfo foreignKey)
+        {
+            ForeignKey = foreignKey;
+        }
+
+        public ForeignKeyInfo ForeignKey { get; }
 
         public override void AppendDDL(IndentedTextWriter textWriter)
         {
-            textWriter.WriteLine($"IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'{ForeignKeyObjectIdentifier}'))");
+            textWriter.WriteLine($"IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'{ForeignKey.ForeignKeyObjectIdentifier}'))");
 
             textWriter.Indent++;
-            textWriter.WriteLine($"ALTER TABLE {ParentObjectIdentifier}");
+            textWriter.WriteLine($"ALTER TABLE {ForeignKey.ParentObjectIdentifier}");
             textWriter.Indent++;
-            textWriter.WriteLine($"ADD CONSTRAINT {ForeignKeyObjectIdentifier} FOREIGN KEY ([{ParentObjectColumnName}])");
-            textWriter.WriteLine($"    REFERENCES {ReferencedObjectIdentifier} ([{ReferencedObjectColumnName}]);");
+            textWriter.Write("ADD");
+            textWriter.Indent++;
+            ForeignKey.AppendDDL(textWriter);
+            textWriter.WriteLine(";");
+            textWriter.Indent--;
             textWriter.Indent--;
             textWriter.Indent--;
 

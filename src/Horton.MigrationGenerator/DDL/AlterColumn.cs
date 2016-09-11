@@ -36,7 +36,7 @@ namespace Horton.MigrationGenerator.DDL
             textWriter.WriteLine($"ALTER TABLE {ObjectIdentitifer}");
 
             textWriter.Indent++;
-            textWriter.Write($"ALTER COLUMN");
+            textWriter.Write($"ALTER COLUMN ");
             Column.AppendDDL(textWriter, includeDefaultConstraints: false);
             textWriter.WriteLine(";");
             textWriter.Indent--;

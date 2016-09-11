@@ -12,7 +12,7 @@ namespace Horton.MigrationGenerator.Sys
 
         public bool is_unique { get; set; }
         public bool is_primary_key { get; set; }
-        public bool is_unique_constant { get; set; }
+        public bool is_unique_constraint { get; set; }
 
         public int fill_factor { get; set; }
 

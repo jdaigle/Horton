@@ -103,14 +103,14 @@ namespace Horton.MigrationGenerator.EF6
 
                     if (!allFKs.Exists(fk => fk.Matches(parentTableName, parentSchemaName, parentColumnName, referencedTableName, referencedSchemaName, referencedColumnName)))
                     {
-                        yield return new AddForeignKey
+                        yield return new AddForeignKey(new ForeignKeyInfo
                         {
                             ForeignKeyObjectIdentifier = SqlUtil.GetQuotedObjectIdentifierString(fkName, parentSchemaName),
                             ParentObjectIdentifier = SqlUtil.GetQuotedObjectIdentifierString(parentTableName, parentSchemaName),
                             ParentObjectColumnName = parentColumnName,
                             ReferencedObjectIdentifier = SqlUtil.GetQuotedObjectIdentifierString(referencedTableName, referencedSchemaName),
                             ReferencedObjectColumnName = referencedColumnName,
-                        };
+                        });
                     }
                 }
             }

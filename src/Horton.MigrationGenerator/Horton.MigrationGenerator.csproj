@@ -63,6 +63,10 @@
     <Compile Include="DDL\ColumnInfo.cs" />
     <Compile Include="DDL\CreateSchema.cs" />
     <Compile Include="DDL\CreateTable.cs" />
+    <Compile Include="DDL\ITableConstraintInfo.cs" />
+    <Compile Include="DDL\UniqueConstraintInfo.cs" />
+    <Compile Include="DDL\PrimaryKeyInfo.cs" />
+    <Compile Include="DDL\ForeignKeyInfo.cs" />
     <Compile Include="DDL\SqlUtil.cs" />
     <Compile Include="DumpSchemaCommand.cs" />
     <Compile Include="EF6\DiffTool.cs" />

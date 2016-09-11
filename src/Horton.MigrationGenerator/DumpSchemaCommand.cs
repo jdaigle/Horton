@@ -142,7 +142,7 @@ namespace Horton.MigrationGenerator
 
                 connection.Close();
 
-                return tables.Values.OrderBy(x => x.create_date).ThenBy(x => x.name).ToList();
+                return tables.Values.OrderBy(x => x.create_date).ThenBy(x => x.Schema.name).ThenBy(x => x.name).ToList();
             }
         }
 

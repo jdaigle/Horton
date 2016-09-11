@@ -27,7 +27,7 @@ namespace Horton.MigrationGenerator.DDL
 
         public void AppendDDL(IndentedTextWriter textWriter, bool includeDefaultConstraints)
         {
-            textWriter.Write(" [");
+            textWriter.Write("[");
             textWriter.Write(Name);
             textWriter.Write("] [");
             textWriter.Write(DataType);
