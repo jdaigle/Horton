@@ -16,8 +16,17 @@ namespace Horton.MigrationGenerator.DDL
         public IEnumerable<string> KeyColumns { get; set; }
         public IEnumerable<string> IncludedColumns { get; set; }
 
+        public string Note { get; set; }
+
         public override void AppendDDL(IndentedTextWriter textWriter)
         {
+            if (!string.IsNullOrEmpty(Note))
+            {
+                textWriter.WriteLine("/*");
+                textWriter.Write("  ");
+                textWriter.WriteLine(Note);
+                textWriter.WriteLine("*/");
+            }
             textWriter.WriteLine($"IF NOT EXISTS (SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID(N'{ObjectIdentitifer}') AND name = N'{Name}')");
             textWriter.WriteLine($"CREATE {(IsUnique ? "UNIQUE " : "")}{(IsClusterd ? "CLUSTERED" : "NONCLUSTERED")} INDEX [{Name}] ON {ObjectIdentitifer} (");
             textWriter.Write("    ");

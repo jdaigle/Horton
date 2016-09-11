@@ -115,7 +115,7 @@ namespace Horton.MigrationGenerator.EF6
                             ParentObjectColumns = new[] { parentColumnName },
                             ReferencedObjectIdentifier = SqlUtil.GetQuotedObjectIdentifierString(referencedTableName, referencedSchemaName),
                             ReferencedObjectColumns = new[] { referencedColumnName },
-                        });
+                        }, "");
                     }
                 }
             }

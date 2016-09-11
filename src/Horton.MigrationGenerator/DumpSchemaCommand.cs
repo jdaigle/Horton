@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using Dapper;
 using Horton.MigrationGenerator.DDL;
+using Horton.MigrationGenerator.Sys;
 
 namespace Horton.MigrationGenerator
 {
@@ -59,7 +60,7 @@ namespace Horton.MigrationGenerator
                         createdTables.Add(table);
                         continue;
                     }
-                    if (table.ForeignKeys.All(fk => createdTables.Contains(fk.Referenced) || fk.Columns.All(c => c.ParentColumn.is_nullable)))
+                    if (table.ForeignKeys.All(fk => createdTables.Contains(fk.Referenced) || fk.IsCircularDependency))
                     {
                         var createTable = CreateTable.FromSQL(table);
                         ddl.Add(CreateTable.FromSQL(table));
@@ -76,6 +77,17 @@ namespace Horton.MigrationGenerator
                     throw new Exception("The depedency graph could not resolve the build order.");
                 }
                 lastCount = tables.Count;
+            }
+            foreach (var fk in createdTables.SelectMany(t => t.ForeignKeys.Where(fk => fk.IsCircularDependency)))
+            {
+                ddl.Add(new AddForeignKey(new ForeignKeyInfo
+                {
+                    ForeignKeyObjectIdentifier = fk.ForeignKeyName,
+                    ParentObjectIdentifier = SqlUtil.GetQuotedObjectIdentifierString(fk.Parent.name, fk.Parent.Schema.name),
+                    ParentObjectColumns = fk.Columns.OrderBy(c => c.constraint_object_id).Select(c => c.ParentColumnName),
+                    ReferencedObjectIdentifier = SqlUtil.GetQuotedObjectIdentifierString(fk.Referenced.name, fk.Referenced.Schema.name),
+                    ReferencedObjectColumns = fk.Columns.OrderBy(c => c.constraint_object_id).Select(c => c.ReferencedColumnName),
+                }, "This FK represents the nullable side of a circular dependency."));
             }
             return ddl;
         }
@@ -121,7 +133,7 @@ namespace Horton.MigrationGenerator
                 }
                 Program.PrintLine("...done.");
 
-                Program.Print("Analyzing dependency graph...");
+                Program.Print("Query columns and table constraints...");
                 foreach (var table in tables.Values)
                 {
                     table.Schema = schemas[table.schema_id];
@@ -154,10 +166,42 @@ namespace Horton.MigrationGenerator
                 }
                 Program.PrintLine("...done.");
 
+                Program.Print("Analyzing FK dependency graph...");
+                foreach (var table in tables.Values)
+                {
+                    foreach (var fk in table.ForeignKeys)
+                    {
+                        fk.IsCircularDependency = IsCircularDependency(table, fk);
+                    }
+                }
+                Program.PrintLine("...done.");
+
                 connection.Close();
 
                 return tables.Values.OrderBy(x => x.create_date).ThenBy(x => x.Schema.name).ThenBy(x => x.name).ToList();
             }
+        }
+
+        private List<ForeignKey> visitedFK = new List<ForeignKey>();
+
+        private bool IsCircularDependency(Table rootTable, ForeignKey fk)
+        {
+            visitedFK.Clear();
+            return IsCircularDependencyRecurisve(rootTable, fk);
+        }
+
+        private bool IsCircularDependencyRecurisve(Table rootTable, ForeignKey fk)
+        {
+            if (visitedFK.Contains(fk))
+            {
+                return false;
+            }
+            visitedFK.Add(fk);
+            if (fk.Referenced == rootTable)
+            {
+                return true;
+            }
+            return fk.Referenced.ForeignKeys.Any(_fk => IsCircularDependencyRecurisve(rootTable, _fk));
         }
     }
 }

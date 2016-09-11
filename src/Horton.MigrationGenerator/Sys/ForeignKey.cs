@@ -22,6 +22,8 @@ namespace Horton.MigrationGenerator.Sys
         internal Table Parent { get; set; }
         internal Table Referenced { get; set; }
 
+        public bool IsCircularDependency { get; internal set; }
+
         public bool Matches(string parentTableName, string parentSchemaName, string parentColumnName, string referencedTableName, string referencedSchemaName, string referencedColumnName)
         {
             return string.Equals(ParentObjectName, parentTableName, StringComparison.OrdinalIgnoreCase)

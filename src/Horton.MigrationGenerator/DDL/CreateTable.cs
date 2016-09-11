@@ -33,7 +33,6 @@ namespace Horton.MigrationGenerator.DDL
 
             textWriter.WriteLine($"IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'{ObjectIdentifier}'))");
 
-            textWriter.Indent++;
             textWriter.WriteLine($"CREATE TABLE {ObjectIdentifier} (");
 
             textWriter.Indent++;
@@ -50,14 +49,12 @@ namespace Horton.MigrationGenerator.DDL
             textWriter.Indent--;
 
             textWriter.WriteLine(");");
-            textWriter.Indent--;
-
             textWriter.WriteLine("GO");
         }
 
         internal static CreateTable FromSQL(Table table)
         {
-            var createTable = new CreateTable(SqlUtil.GetQuotedObjectIdentifierString(table.name, table.Schema.name), table.Columns.Select(c => ColumnInfo.FromSQL(c)), "");
+            var createTable = new CreateTable(SqlUtil.GetQuotedObjectIdentifierString(table.name, table.Schema.name), table.Columns.Select(c => ColumnInfo.FromSQL(c)), $"Table {SqlUtil.GetQuotedObjectIdentifierString(table.name, table.Schema.name)} was reverse engineered from schema inspection.");
 
             createTable.Constraints.AddRange(table.Indexes.Where(x => x.is_primary_key).Select(index => new PrimaryKeyInfo
             {
@@ -74,7 +71,7 @@ namespace Horton.MigrationGenerator.DDL
                 Columns = index.Columns.OrderBy(x => x.key_ordinal).Select(x => "[" + x.Column.Name + "]" + (x.is_descending_key ? " DESC" : "")),
             }));
 
-            createTable.Constraints.AddRange(table.ForeignKeys.Select(x => new ForeignKeyInfo
+            createTable.Constraints.AddRange(table.ForeignKeys.Where(x => !x.IsCircularDependency).Select(x => new ForeignKeyInfo
             {
                 ForeignKeyObjectIdentifier = x.ForeignKeyName,
                 ParentObjectIdentifier = SqlUtil.GetQuotedObjectIdentifierString(x.Parent.name, x.Parent.Schema.name),
