@@ -73,9 +73,16 @@ namespace Horton.MigrationGenerator.EF6
                         continue;
                     }
 
-                    foreach (var columnChange in CheckForNewColumns(entitySet, objectIdentifier))
+                    var existingColumns = _targetConnection
+                        .Query<Sys.Column>("SELECT columns.*, types.name AS TypeName FROM sys.columns INNER JOIN sys.types ON types.user_type_id = columns.user_type_id WHERE object_id= OBJECT_ID(@objectIdentifier)", new { objectIdentifier }).ToList();
+
+                    foreach (var property in entitySet.ElementType.Properties)
                     {
-                        yield return columnChange;
+                        var columnChange = CheckColumn(property, existingColumns, entitySet, objectIdentifier);
+                        if (columnChange != null)
+                        {
+                            yield return columnChange;
+                        }
                     }
                 }
             }
@@ -123,91 +130,90 @@ namespace Horton.MigrationGenerator.EF6
             yield break;
         }
 
-        private IEnumerable<AbstractDatabaseChange> CheckForNewColumns(EntitySet entitySet, string objectIdentifier)
+        private AbstractDatabaseChange CheckColumn(EdmProperty property, IEnumerable<Sys.Column> existingColumns, EntitySet entitySet, string objectIdentifier)
         {
-            var existingColumns = _targetConnection
-                        .Query<Sys.Column>("SELECT columns.*, types.name AS TypeName FROM sys.columns INNER JOIN sys.types ON types.user_type_id = columns.user_type_id WHERE object_id= OBJECT_ID(@objectIdentifier)", new { objectIdentifier }).ToList();
-
             var entityName = TryGetEntityName(entitySet);
-            foreach (var property in entitySet.ElementType.Properties)
+            var typeName = property.TypeName;
+
+            var isMaxLen = false;
+            // Special case: the EDM treats 'nvarchar(max)' as a type name, but SQL Server treats
+            // it as a type 'nvarchar' and a type qualifier.
+            const string maxSuffix = "(max)";
+            if (typeName.EndsWith(maxSuffix))
             {
-                var typeName = property.TypeName;
-
-                var isMaxLen = false;
-                // Special case: the EDM treats 'nvarchar(max)' as a type name, but SQL Server treats
-                // it as a type 'nvarchar' and a type qualifier.
-                const string maxSuffix = "(max)";
-                if (typeName.EndsWith(maxSuffix))
-                {
-                    typeName = typeName.Substring(0, typeName.Length - maxSuffix.Length);
-                    isMaxLen = true;
-                }
-
-                var existingColumn = existingColumns.SingleOrDefault(x => x.Name.Equals(property.Name, StringComparison.OrdinalIgnoreCase));
-                if (existingColumn == null)
-                {
-                    // new column
-                    yield return new AddColumn(objectIdentifier, ColumnInfo.FromEF6(property, entitySet.Table));
-                }
-
-                if (property.IsUnicode == true && existingColumn.max_length > 0)
-                {
-                    // unicode (nchar,nvarchar) are storaged at double the length
-                    existingColumn.max_length = (short)(existingColumn.max_length / 2);
-                }
-
-                if (property.IsStoreGeneratedIdentity != existingColumn.is_identity && typeName != "uniqueidentifier")
-                {
-                    yield return new AlterColumn(objectIdentifier, ColumnInfo.FromEF6(property, entitySet.Table), $"IDENTITY Attribute Altered For \"{entityName}.{property.Name}\". SQL Type: {existingColumn.ToInfoString()}");
-                }
-
-                if (property.DefaultValue != null)
-                {
-
-                }
-
-                if (!string.Equals(typeName, existingColumn.TypeName, StringComparison.OrdinalIgnoreCase))
-                {
-                    yield return new AlterColumn(objectIdentifier, ColumnInfo.FromEF6(property, entitySet.Table), $"Data Type Altered For \"{entityName}.{property.Name}\". SQL Type: {existingColumn.ToInfoString()}");
-                }
-
-                if (property.Nullable != existingColumn.is_nullable)
-                {
-                    yield return new AlterColumn(objectIdentifier, ColumnInfo.FromEF6(property, entitySet.Table), $"Nullability Altered For \"{entityName}.{property.Name}\". SQL Type: {existingColumn.ToInfoString()}");
-                }
-
-                // Compare data type properties (len, precision, scale)
-                if (isMaxLen && existingColumn.max_length != -1 ||
-                    !isMaxLen && existingColumn.max_length == -1 ||
-                    !property.IsMaxLengthConstant && property.MaxLength.HasValue && (property.MaxLength != existingColumn.max_length))
-                {
-                    // length differs
-                    yield return new AlterColumn(objectIdentifier, ColumnInfo.FromEF6(property, entitySet.Table), $"Data Type Max Length Altered For \"{entityName}.{property.Name}\". SQL Type: {existingColumn.ToInfoString()}");
-                }
-
-                byte? precision = property.IsPrecisionConstant ? null : property.Precision;
-                byte? scale = property.IsScaleConstant ? null : property.Scale;
-
-                if (typeName == "time")
-                {
-                    // Special case: EDM gives "time" a Precision value, but in SQL it's actually Scale
-                    scale = precision;
-                    precision = null;
-                }
-
-                if (precision.HasValue && (precision != existingColumn.precision))
-                {
-                    // scale differs
-                    yield return new AlterColumn(objectIdentifier, ColumnInfo.FromEF6(property, entitySet.Table), $"Data Type Precision Altered For \"{entityName}.{property.Name}\". SQL Type: {existingColumn.ToInfoString()}");
-                }
-                if (scale.HasValue && (scale != existingColumn.scale))
-                {
-                    // scale differs
-                    yield return new AlterColumn(objectIdentifier, ColumnInfo.FromEF6(property, entitySet.Table), $"Data Type Scale Altered For \"{entityName}.{property.Name}\". SQL Type: {existingColumn.ToInfoString()}");
-                }
+                typeName = typeName.Substring(0, typeName.Length - maxSuffix.Length);
+                isMaxLen = true;
+            }
+            // Special case: XML is always "max"
+            if (typeName == "xml")
+            {
+                isMaxLen = true;
             }
 
-            yield break;
+            var existingColumn = existingColumns.SingleOrDefault(x => x.Name.Equals(property.Name, StringComparison.OrdinalIgnoreCase));
+            if (existingColumn == null)
+            {
+                // new column
+                return new AddColumn(objectIdentifier, ColumnInfo.FromEF6(property, entitySet.Table));
+            }
+
+            if (property.IsUnicode == true && existingColumn.max_length > 0)
+            {
+                // unicode (nchar,nvarchar) are storaged at double the length
+                existingColumn.max_length = (short)(existingColumn.max_length / 2);
+            }
+
+            if (property.IsStoreGeneratedIdentity != existingColumn.is_identity && typeName != "uniqueidentifier")
+            {
+                return new AlterColumn(objectIdentifier, ColumnInfo.FromEF6(property, entitySet.Table), $"IDENTITY Attribute Altered For \"{entityName}.{property.Name}\". SQL Type: {existingColumn.ToInfoString()}");
+            }
+
+            if (property.DefaultValue != null)
+            {
+
+            }
+
+            if (!string.Equals(typeName, existingColumn.TypeName, StringComparison.OrdinalIgnoreCase))
+            {
+                return new AlterColumn(objectIdentifier, ColumnInfo.FromEF6(property, entitySet.Table), $"Data Type Altered For \"{entityName}.{property.Name}\". SQL Type: {existingColumn.ToInfoString()}");
+            }
+
+            if (property.Nullable != existingColumn.is_nullable)
+            {
+                return new AlterColumn(objectIdentifier, ColumnInfo.FromEF6(property, entitySet.Table), $"Nullability Altered For \"{entityName}.{property.Name}\". SQL Type: {existingColumn.ToInfoString()}");
+            }
+
+            // Compare data type properties (len, precision, scale)
+            if (isMaxLen && existingColumn.max_length != -1 ||
+                !isMaxLen && existingColumn.max_length == -1 ||
+                !property.IsMaxLengthConstant && property.MaxLength.HasValue && (property.MaxLength != existingColumn.max_length))
+            {
+                // length differs
+                return new AlterColumn(objectIdentifier, ColumnInfo.FromEF6(property, entitySet.Table), $"Data Type Max Length Altered For \"{entityName}.{property.Name}\". SQL Type: {existingColumn.ToInfoString()}");
+            }
+
+            byte? precision = property.IsPrecisionConstant ? null : property.Precision;
+            byte? scale = property.IsScaleConstant ? null : property.Scale;
+
+            if (typeName == "time")
+            {
+                // Special case: EDM gives "time" a Precision value, but in SQL it's actually Scale
+                scale = precision;
+                precision = null;
+            }
+
+            if (precision.HasValue && (precision != existingColumn.precision))
+            {
+                // scale differs
+                return new AlterColumn(objectIdentifier, ColumnInfo.FromEF6(property, entitySet.Table), $"Data Type Precision Altered For \"{entityName}.{property.Name}\". SQL Type: {existingColumn.ToInfoString()}");
+            }
+            if (scale.HasValue && (scale != existingColumn.scale))
+            {
+                // scale differs
+                return new AlterColumn(objectIdentifier, ColumnInfo.FromEF6(property, entitySet.Table), $"Data Type Scale Altered For \"{entityName}.{property.Name}\". SQL Type: {existingColumn.ToInfoString()}");
+            }
+
+            return null;
         }
 
         private IEnumerable<AbstractDatabaseChange> CheckForNewSchemas(StoreItemCollection storeItemCollection)
