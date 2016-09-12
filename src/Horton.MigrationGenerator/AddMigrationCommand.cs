@@ -71,6 +71,8 @@ namespace Horton.MigrationGenerator
                 Program.PrintLine(ConsoleColor.DarkGreen, migrationFileName);
 
                 File.WriteAllText(newMigrationFullFilePath, sb.ToString());
+
+                System.Diagnostics.Process.Start(newMigrationFullFilePath);
             }
 
             Program.PrintLine();
