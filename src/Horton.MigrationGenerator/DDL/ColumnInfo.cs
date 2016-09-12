@@ -135,23 +135,9 @@ namespace Horton.MigrationGenerator.DDL
             return " " + CheckConstraintExpression;
         }
 
-        internal static ColumnInfo FromSQL(Column column)
+        private void FixColumnType()
         {
-            var columnInfo = new ColumnInfo(column.Name, column.TypeName)
-            {
-                IsNullable = column.is_nullable,
-                IsMaxLength = column.max_length == -1,
-                IsIdentity = column.is_identity,
-                MaxLength = column.max_length,
-                Scale = column.scale,
-                Precision = column.precision,
-                IsRowGuid = column.is_rowguidcol,
-                IsComputed = column.is_computed,
-                ComputedColumnDefinitionExpression = column.computed_column_definition,
-                IsPersisted = column.is_persisted,
-            };
-
-            switch (columnInfo.DataType)
+            switch (DataType)
             {
                 case "bit":
                 case "tinyint":
@@ -171,24 +157,23 @@ namespace Horton.MigrationGenerator.DDL
                 case "geometry":
                 case "geography":
                 case "xml":
-                    columnInfo.IsMaxLength = false;
-                    columnInfo.MaxLength = null;
-                    columnInfo.Scale = null;
-                    columnInfo.Precision = null;
+                    IsMaxLength = false;
+                    MaxLength = null;
+                    Scale = null;
+                    Precision = null;
                     break;
                 case "datetime2":
                 case "datetimeoffset":
                 case "time":
-                    columnInfo.IsMaxLength = false;
-                    columnInfo.MaxLength = null;
-                    columnInfo.Precision = null;
+                    IsMaxLength = false;
+                    MaxLength = null;
+                    Precision = null;
                     break;
                 case "nvarchar":
                 case "nchar":
                 case "ntext":
-                    columnInfo.MaxLength = columnInfo.MaxLength / 2;
-                    columnInfo.Precision = null;
-                    columnInfo.Scale = null;
+                    Precision = null;
+                    Scale = null;
                     break;
                 case "varchar":
                 case "char":
@@ -196,19 +181,48 @@ namespace Horton.MigrationGenerator.DDL
                 case "varbinary":
                 case "image":
                 case "text":
-                    columnInfo.Precision = null;
-                    columnInfo.Scale = null;
+                    Precision = null;
+                    Scale = null;
                     break;
                 case "decimal":
                 case "numeric":
-                    columnInfo.IsMaxLength = false;
-                    columnInfo.MaxLength = null;
+                    IsMaxLength = false;
+                    MaxLength = null;
                     break;
                 case "float":
                 case "real":
-                    columnInfo.IsMaxLength = false;
-                    columnInfo.MaxLength = null;
-                    columnInfo.Scale = null;
+                    IsMaxLength = false;
+                    MaxLength = null;
+                    Scale = null;
+                    break;
+            }
+        }
+
+        internal static ColumnInfo FromSQL(Column column)
+        {
+            var columnInfo = new ColumnInfo(column.Name, column.TypeName)
+            {
+                IsNullable = column.is_nullable,
+                IsMaxLength = column.max_length == -1,
+                IsIdentity = column.is_identity,
+                MaxLength = column.max_length,
+                Scale = column.scale,
+                Precision = column.precision,
+                IsRowGuid = column.is_rowguidcol,
+                IsComputed = column.is_computed,
+                ComputedColumnDefinitionExpression = column.computed_column_definition,
+                IsPersisted = column.is_persisted,
+            };
+
+            columnInfo.FixColumnType();
+
+            // Special case: SQL storage size for unicode is 2x size
+            switch (columnInfo.DataType)
+            {
+                case "nvarchar":
+                case "nchar":
+                case "ntext":
+                    columnInfo.MaxLength = columnInfo.MaxLength / 2;
                     break;
             }
 
@@ -278,6 +292,8 @@ namespace Horton.MigrationGenerator.DDL
                 columnInfo.Scale = columnInfo.Precision;
                 columnInfo.Precision = null;
             }
+
+            columnInfo.FixColumnType();
 
             // TODO: detect "rowversion" data types
 
