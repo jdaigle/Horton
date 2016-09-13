@@ -105,6 +105,7 @@ namespace Horton.MigrationGenerator.EF6
                     var constraint = associationSet.ElementType.ReferentialConstraints.Single();
                     var principalEnd = associationSet.AssociationSetEnds[constraint.FromRole.Name];
                     var dependentEnd = associationSet.AssociationSetEnds[constraint.ToRole.Name];
+                    var deleteBehavior = constraint.FromRole.DeleteBehavior;
 
                     var parentTableName = dependentEnd.EntitySet.Table;
                     var parentSchemaName = dependentEnd.EntitySet.Schema;
@@ -123,6 +124,7 @@ namespace Horton.MigrationGenerator.EF6
                             ParentObjectColumns = new[] { parentColumnName },
                             ReferencedObjectIdentifier = SqlUtil.GetQuotedObjectIdentifierString(referencedTableName, referencedSchemaName),
                             ReferencedObjectColumns = new[] { referencedColumnName },
+                            CascadeDelete = deleteBehavior == OperationAction.Cascade,
                         }, "");
                     }
                 }

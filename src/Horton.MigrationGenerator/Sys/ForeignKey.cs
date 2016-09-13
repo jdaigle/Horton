@@ -9,6 +9,8 @@ namespace Horton.MigrationGenerator.Sys
         public int object_id { get; set; }
         public string ForeignKeyName { get; set; }
 
+        public int delete_referential_action { get; set; }
+
         public int parent_object_id { get; set; }
         public string ParentSchemaName { get; set; }
         public string ParentObjectName { get; set; }

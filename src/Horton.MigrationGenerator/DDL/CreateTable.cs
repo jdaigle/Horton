@@ -71,13 +71,14 @@ namespace Horton.MigrationGenerator.DDL
                 Columns = index.Columns.OrderBy(x => x.key_ordinal).Select(x => "[" + x.Column.Name + "]" + (x.is_descending_key ? " DESC" : "")),
             }));
 
-            createTable.Constraints.AddRange(table.ForeignKeys.Where(x => !x.IsCircularDependency).Select(x => new ForeignKeyInfo
+            createTable.Constraints.AddRange(table.ForeignKeys.Where(fk => !fk.IsCircularDependency).Select(fk => new ForeignKeyInfo
             {
-                QuotedForeignKeyName = SqlUtil.GetQuotedObjectIdentifierString(x.ForeignKeyName),
-                ParentObjectIdentifier = SqlUtil.GetQuotedObjectIdentifierString(x.Parent.name, x.Parent.Schema.name),
-                ParentObjectColumns = x.Columns.OrderBy(c => c.constraint_object_id).Select(c => c.ParentColumnName),
-                ReferencedObjectIdentifier = SqlUtil.GetQuotedObjectIdentifierString(x.Referenced.name, x.Referenced.Schema.name),
-                ReferencedObjectColumns = x.Columns.OrderBy(c => c.constraint_object_id).Select(c => c.ReferencedColumnName),
+                QuotedForeignKeyName = SqlUtil.GetQuotedObjectIdentifierString(fk.ForeignKeyName),
+                ParentObjectIdentifier = SqlUtil.GetQuotedObjectIdentifierString(fk.Parent.name, fk.Parent.Schema.name),
+                ParentObjectColumns = fk.Columns.OrderBy(c => c.constraint_object_id).Select(c => c.ParentColumnName),
+                ReferencedObjectIdentifier = SqlUtil.GetQuotedObjectIdentifierString(fk.Referenced.name, fk.Referenced.Schema.name),
+                ReferencedObjectColumns = fk.Columns.OrderBy(c => c.constraint_object_id).Select(c => c.ReferencedColumnName),
+                CascadeDelete = fk.delete_referential_action == 1,
             }));
 
             createTable.Constraints.AddRange(table.TableCheckConstraints.Select(x => new TableCheckConstraintInfo

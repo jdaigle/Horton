@@ -93,6 +93,7 @@ namespace Horton.MigrationGenerator
                     ParentObjectColumns = fk.Columns.OrderBy(c => c.constraint_object_id).Select(c => c.ParentColumnName),
                     ReferencedObjectIdentifier = SqlUtil.GetQuotedObjectIdentifierString(fk.Referenced.name, fk.Referenced.Schema.name),
                     ReferencedObjectColumns = fk.Columns.OrderBy(c => c.constraint_object_id).Select(c => c.ReferencedColumnName),
+                    CascadeDelete = fk.delete_referential_action == 1,
                 }, "This FK represents the nullable side of a circular dependency."));
             }
             return ddl;
