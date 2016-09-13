@@ -158,6 +158,12 @@ namespace Horton.MigrationGenerator.EF6
                 return new AddColumn(objectIdentifier, ColumnInfo.FromEF6(property, entitySet.Table));
             }
 
+            if (property.MetadataProperties.Any(x => x.Name.EndsWith("HortonIgnore", StringComparison.OrdinalIgnoreCase) && (bool)x.Value == true))
+            {
+                // ignore this property, even if it's different!
+                return null;
+            }
+
             if (property.IsUnicode == true && existingColumn.max_length > 0)
             {
                 // unicode (nchar,nvarchar) are storaged at double the length
