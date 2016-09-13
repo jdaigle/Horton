@@ -23,7 +23,7 @@ namespace Horton.MigrationGenerator.DDL
                 textWriter.WriteLine("*/");
             }
 
-            textWriter.WriteLine($"IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'{ForeignKey.ForeignKeyObjectIdentifier}'))");
+            textWriter.WriteLine($"IF NOT EXISTS (SELECT * FROM sys.objects WHERE object_id = OBJECT_ID(N'{ForeignKey.QuotedForeignKeyName}'))");
 
             textWriter.Indent++;
             textWriter.WriteLine($"ALTER TABLE {ForeignKey.ParentObjectIdentifier}");

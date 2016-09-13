@@ -88,7 +88,7 @@ namespace Horton.MigrationGenerator
             {
                 ddl.Add(new AddForeignKey(new ForeignKeyInfo
                 {
-                    ForeignKeyObjectIdentifier = fk.ForeignKeyName,
+                    QuotedForeignKeyName = SqlUtil.GetQuotedObjectIdentifierString(fk.ForeignKeyName),
                     ParentObjectIdentifier = SqlUtil.GetQuotedObjectIdentifierString(fk.Parent.name, fk.Parent.Schema.name),
                     ParentObjectColumns = fk.Columns.OrderBy(c => c.constraint_object_id).Select(c => c.ParentColumnName),
                     ReferencedObjectIdentifier = SqlUtil.GetQuotedObjectIdentifierString(fk.Referenced.name, fk.Referenced.Schema.name),

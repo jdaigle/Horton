@@ -105,19 +105,19 @@ namespace Horton.MigrationGenerator.EF6
                     var principalEnd = associationSet.AssociationSetEnds[constraint.FromRole.Name];
                     var dependentEnd = associationSet.AssociationSetEnds[constraint.ToRole.Name];
 
-                    var fkName = associationSet.Name;
                     var parentTableName = dependentEnd.EntitySet.Table;
                     var parentSchemaName = dependentEnd.EntitySet.Schema;
                     var parentColumnName = constraint.ToProperties.Single().Name;
                     var referencedTableName = principalEnd.EntitySet.Table;
                     var referencedSchemaName = principalEnd.EntitySet.Schema;
                     var referencedColumnName = constraint.FromProperties.Single().Name;
+                    var fkName = "FK_" + parentTableName + "_" + referencedTableName + "_" + parentColumnName;
 
                     if (!allFKs.Exists(fk => fk.Matches(parentTableName, parentSchemaName, parentColumnName, referencedTableName, referencedSchemaName, referencedColumnName)))
                     {
                         yield return new AddForeignKey(new ForeignKeyInfo
                         {
-                            ForeignKeyObjectIdentifier = SqlUtil.GetQuotedObjectIdentifierString(fkName, parentSchemaName),
+                            QuotedForeignKeyName = SqlUtil.GetQuotedObjectIdentifierString(fkName),
                             ParentObjectIdentifier = SqlUtil.GetQuotedObjectIdentifierString(parentTableName, parentSchemaName),
                             ParentObjectColumns = new[] { parentColumnName },
                             ReferencedObjectIdentifier = SqlUtil.GetQuotedObjectIdentifierString(referencedTableName, referencedSchemaName),

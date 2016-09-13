@@ -73,7 +73,7 @@ namespace Horton.MigrationGenerator.DDL
 
             createTable.Constraints.AddRange(table.ForeignKeys.Where(x => !x.IsCircularDependency).Select(x => new ForeignKeyInfo
             {
-                ForeignKeyObjectIdentifier = x.ForeignKeyName,
+                QuotedForeignKeyName = SqlUtil.GetQuotedObjectIdentifierString(x.ForeignKeyName),
                 ParentObjectIdentifier = SqlUtil.GetQuotedObjectIdentifierString(x.Parent.name, x.Parent.Schema.name),
                 ParentObjectColumns = x.Columns.OrderBy(c => c.constraint_object_id).Select(c => c.ParentColumnName),
                 ReferencedObjectIdentifier = SqlUtil.GetQuotedObjectIdentifierString(x.Referenced.name, x.Referenced.Schema.name),
