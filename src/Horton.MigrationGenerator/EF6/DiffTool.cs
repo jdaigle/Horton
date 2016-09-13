@@ -65,6 +65,7 @@ namespace Horton.MigrationGenerator.EF6
                         // CREATE TABLE
                         var entityName = TryGetEntityName(entitySet);
                         yield return new CreateTable(objectIdentifier, entitySet.ElementType.Properties.Select(p => ColumnInfo.FromEF6(p, entitySet.Table)), "Create From Entity: " + entityName);
+                        continue;
                     }
 
                     if (existingObject.type.Trim() == "V")
@@ -126,8 +127,6 @@ namespace Horton.MigrationGenerator.EF6
                     }
                 }
             }
-
-            yield break;
         }
 
         private AbstractDatabaseChange CheckColumn(EdmProperty property, IEnumerable<Sys.Column> existingColumns, EntitySet entitySet, string objectIdentifier)
