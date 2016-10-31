@@ -12,8 +12,8 @@ namespace Horton
 
         public int SerialNumber { get; }
 
-        public override byte TypeCode { get { return 1; } }
-        public override bool ConflictOnContent { get { return true; } }
+        public override byte TypeCode => 1;
+        public override bool ConflictOnContent => true;
 
         public override int CompareTo(ScriptFile other)
         {
@@ -30,9 +30,6 @@ namespace Horton
             return -1;
         }
 
-        public int CompareTo(MigrationScript other)
-        {
-            return SerialNumber.CompareTo(other.SerialNumber);
-        }
+        public int CompareTo(MigrationScript other) => SerialNumber.CompareTo(other.SerialNumber);
     }
 }

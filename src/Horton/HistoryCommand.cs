@@ -1,5 +1,4 @@
-﻿using System;
-using Horton.SqlServer;
+﻿using Horton.SqlServer;
 
 namespace Horton
 {

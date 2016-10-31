@@ -16,7 +16,7 @@ namespace Horton
 
         private static readonly Dictionary<string, HortonCommand> _commandRegistery = new Dictionary<string, HortonCommand>(StringComparer.OrdinalIgnoreCase);
 
-        public static ICollection<HortonCommand> Commands { get { return _commandRegistery.Values; } }
+        public static ICollection<HortonCommand> Commands => _commandRegistery.Values;
 
         public static HortonCommand TryParseCommand(string command)
         {
@@ -44,8 +44,8 @@ namespace Horton
             }
 
             var assembliesDir = AppDomain.CurrentDomain.BaseDirectory;
-            var allAssemblies = AssemblyExtensions.GetAssembliesInDirectory(assembliesDir).Distinct();
             var thisAssembly = typeof(HortonCommands).Assembly;
+            var allAssemblies = AssemblyExtensions.GetAssembliesInDirectory(assembliesDir).Distinct();
             foreach (var assembly in allAssemblies)
             {
                 if (assembly == thisAssembly)
@@ -63,9 +63,6 @@ namespace Horton
             _pluginsLoaded = true;
         }
 
-        public static void RegisterCommand(HortonCommand command)
-        {
-            _commandRegistery[command.Name] = command;
-        }
+        public static void RegisterCommand(HortonCommand command) => _commandRegistery[command.Name] = command;
     }
 }

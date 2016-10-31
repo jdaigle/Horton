@@ -61,13 +61,9 @@ namespace Horton
         }
 
         public virtual int CompareTo(ScriptFile other)
-        {
-            return FileName.CompareTo(other.FileName);
-        }
+            => FileName.CompareTo(other.FileName);
 
         public bool ContentMatches(string contentSHA1Hash)
-        {
-            return string.Equals(ContentSHA1Hash, contentSHA1Hash, StringComparison.OrdinalIgnoreCase);
-        }
+            => string.Equals(ContentSHA1Hash, contentSHA1Hash, StringComparison.OrdinalIgnoreCase);
     }
 }

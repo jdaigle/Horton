@@ -27,15 +27,19 @@ namespace Horton
         public static IEnumerable<Assembly> GetAssembliesInDirectory(string path)
         {
             foreach (var a in GetAssembliesInDirectoryWithExtension(path, "*.exe"))
+            {
                 yield return a;
+            }
             foreach (var a in GetAssembliesInDirectoryWithExtension(path, "*.dll"))
+            {
                 yield return a;
+            }
         }
 
         public static IEnumerable<Assembly> GetAssembliesInDirectoryWithExtension(string path, string extension)
         {
             var result = new List<Assembly>();
-            foreach (FileInfo file in new DirectoryInfo(path).GetFiles(extension, SearchOption.AllDirectories))
+            foreach (var file in new DirectoryInfo(path).GetFiles(extension, SearchOption.AllDirectories))
             {
                 try
                 {
