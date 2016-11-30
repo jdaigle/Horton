@@ -19,12 +19,15 @@ namespace Horton
                 var loader = new FileLoader(options.MigrationsDirectoryPath);
                 loader.LoadAllFiles();
 
-                Program.PrintLine("=== Info ===");
-                Program.PrintLine();
-                Program.PrintLine("The following scripts will execute...");
+                if (!options.Unattend)
+                {
+                    Program.PrintLine("=== UPDATE ===");
+                    Program.PrintLine();
+                }
 
                 var toExecute = new List<ScriptFile>();
                 bool willExecuteMigrations = true;
+                bool hasPrintedHeader = false;
 
                 foreach (var file in loader.Files)
                 {
@@ -37,10 +40,20 @@ namespace Horton
                         }
                         if (file.ConflictOnContent)
                         {
+                            if (!hasPrintedHeader)
+                            {
+                                Program.PrintLine("The following scripts will execute...");
+                                hasPrintedHeader = true;
+                            }
                             Program.PrintLine(ConsoleColor.Red, $"\nCONFLICT: The script \"{file.FileName}\" has changed since it was applied on \"{existingRecord.AppliedUTC.ToString("yyyy-MM-dd HH:mm:ss.ff")}\".");
                             willExecuteMigrations = false;
                             continue;
                         }
+                    }
+                    if (!hasPrintedHeader)
+                    {
+                        Program.PrintLine("The following scripts will execute...");
+                        hasPrintedHeader = true;
                     }
                     Program.PrintLine(ConsoleColor.DarkGreen, $"\n\"{file.FileName}\" will execute on UPDATE.");
                     toExecute.Add(file);
@@ -71,7 +84,10 @@ namespace Horton
                     Program.PrintLine(ConsoleColor.DarkGreen, "done.");
                 }
 
-                Program.PrintLine();
+                if (!options.Unattend)
+                {
+                    Program.PrintLine();
+                }
                 Program.PrintLine("Finished.");
             }
         }

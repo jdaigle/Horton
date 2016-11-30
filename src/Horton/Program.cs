@@ -67,10 +67,6 @@ namespace Horton
 
         private static void MainInternal(string[] args)
         {
-            Console.WriteLine();
-            Console.WriteLine("Horton. The simple database migration utility.");
-            Console.WriteLine();
-
             var options = new HortonOptions();
             bool showHelp = false;
 
@@ -85,6 +81,14 @@ namespace Horton
                 //{ "v", "increase debug message verbosity", v => { if (v != null) ++verbosity; } },
                 { "h|help|?",  "show help message and exit.", v => showHelp = v != null },
             };
+
+
+            if (showHelp)
+            {
+                Console.WriteLine();
+                Console.WriteLine("Horton. The simple database migration utility.");
+                Console.WriteLine();
+            }
 
             if (args.Length == 0)
             {
@@ -121,7 +125,6 @@ namespace Horton
                 return;
             }
 
-            Console.WriteLine();
             options.Command.Execute(options);
         }
 
