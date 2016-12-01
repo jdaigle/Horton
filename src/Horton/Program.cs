@@ -71,6 +71,7 @@ namespace Horton
         {
             var options = new HortonOptions();
             bool showHelp = false;
+            bool printVersion = false;
 
             var p = new OptionSet()
             {
@@ -81,17 +82,9 @@ namespace Horton
                 { "p|password=", "password of the database connection.\n(required if username is provided)", v => options.Password = v },
                 { "c|connectionString=", "ADO.NET connection string.\n(optional, overrides other parameters)", v => options.ConnectionString = v },
                 { "U|UNATTEND", "Surpress user acknowledgement during\nexecution.", v => options.Unattend = v != null },
-                //{ "v", "increase debug message verbosity", v => { if (v != null) ++verbosity; } },
+                { "v|version",  "Print version number and exit.", v => printVersion = v != null },
                 { "h|help|?",  "show help message and exit.", v => showHelp = v != null },
             };
-
-
-            if (showHelp)
-            {
-                Console.WriteLine();
-                Console.WriteLine("Horton. The simple database migration utility.");
-                Console.WriteLine();
-            }
 
             if (args.Length == 0)
             {
@@ -105,15 +98,25 @@ namespace Horton
             }
             catch (OptionException e)
             {
-                Console.Write("horton: ");
                 Console.WriteLine(e.Message);
                 Console.WriteLine("Try `horton.exe --help' for more information.");
                 return;
             }
 
+            if (!options.Unattend)
+            {
+                Console.WriteLine("Horton. The simple database migration utility.");
+            }
+
             if (showHelp)
             {
                 ShowHelp(p);
+                return;
+            }
+
+            if (printVersion)
+            {
+                Console.WriteLine("Version: " + typeof(Program).Assembly.GetName().Version.ToString());
                 return;
             }
 
