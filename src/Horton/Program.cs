@@ -79,6 +79,7 @@ namespace Horton
                 { "d|database=", "database name.\n(leave blank to look for \"database.name\")", v => options.DatabaseName = v },
                 { "u|username=", "username of the database connection.\n(leave blank for integrated security)", v => options.Username = v },
                 { "p|password=", "password of the database connection.\n(required if username is provided)", v => options.Password = v },
+                { "c|connectionString=", "ADO.NET connection string.\n(optional, overrides other parameters)", v => options.ConnectionString = v },
                 { "U|UNATTEND", "Surpress user acknowledgement during\nexecution.", v => options.Unattend = v != null },
                 //{ "v", "increase debug message verbosity", v => { if (v != null) ++verbosity; } },
                 { "h|help|?",  "show help message and exit.", v => showHelp = v != null },

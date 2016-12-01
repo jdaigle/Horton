@@ -15,6 +15,7 @@ namespace Horton
 
         public string Username { get; set; } = "";
         public string Password { get; set; } = "";
+        public string ConnectionString { get; set; } = "";
 
         public bool Unattend { get; set; } = false;
 
@@ -41,6 +42,15 @@ namespace Horton
             {
                 firstValidationMessage = "Command is required.";
                 return false;
+            }
+
+            if (!string.IsNullOrEmpty(ConnectionString))
+            {
+                var connectionStringBuilder = new SqlConnectionStringBuilder(ConnectionString);
+                ServerHostname = connectionStringBuilder.DataSource;
+                DatabaseName = connectionStringBuilder.InitialCatalog;
+                Username = connectionStringBuilder.UserID;
+                Password = connectionStringBuilder.Password;
             }
 
             TryGetDatabaseNameFromFile();
