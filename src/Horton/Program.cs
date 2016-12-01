@@ -19,6 +19,8 @@ namespace Horton
                 PrintErrorLine(ex.StackTrace);
 #if DEBUG
                 throw;
+#else
+                Environment.Exit(1);
 #endif
             }
             finally
@@ -122,7 +124,7 @@ namespace Horton
             {
                 Console.WriteLine(firstValidationMessage);
                 Console.WriteLine("Try `horton.exe --help' for more information.");
-                return;
+                Environment.Exit(1);
             }
 
             options.Command.Execute(options);

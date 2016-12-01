@@ -46,6 +46,7 @@ namespace Horton
                 if (!willExecuteMigrations)
                 {
                     Program.PrintLine(ConsoleColor.Red, $"\nWARNING! Migrations will not execute until conflicts are resolved.");
+                    Environment.Exit(1);
                 }
 
                 Program.PrintLine();

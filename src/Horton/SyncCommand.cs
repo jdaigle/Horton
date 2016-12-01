@@ -41,7 +41,7 @@ namespace Horton
                             else
                             {
                                 Program.PrintLine("\nAborting...");
-                                return;
+                                Environment.Exit(1);
                             }
                         }
                     }

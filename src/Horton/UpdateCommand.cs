@@ -62,7 +62,7 @@ namespace Horton
                 if (!willExecuteMigrations)
                 {
                     Program.PrintLine(ConsoleColor.Red, $"\nWARNING! Migrations will not execute until conflicts are resolved.");
-                    return;
+                    Environment.Exit(1);
                 }
 
                 if (!options.Unattend && toExecute.Any())
@@ -73,7 +73,7 @@ namespace Horton
                     if (c.KeyChar != 'y' && c.KeyChar != 'Y')
                     {
                         Program.PrintLine("Aborting...");
-                        return;
+                        Environment.Exit(1);
                     }
                 }
 
