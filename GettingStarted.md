@@ -31,8 +31,12 @@ Check out the `\samples\` directory in this repository for examples of how I wou
                                    (leave blank for integrated security)
       -p, --password=VALUE       password of the database connection.
                                    (required if username is provided)
+      -c, --connectionString=VALUE
+                                 ADO.NET connection string.
+                                   (optional, overrides other parameters)
       -U, --UNATTEND             Surpress user acknowledgement during
                                    execution.
+      -v, --version              Print version number and exit.
       -h, --help, -?             show help message and exit.
     
     Examples:
