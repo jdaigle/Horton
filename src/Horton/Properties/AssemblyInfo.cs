@@ -9,6 +9,6 @@ using System.Runtime.InteropServices;
 
 [assembly: ComVisible(false)]
 
-[assembly: AssemblyVersion("4.1.0")]
+[assembly: AssemblyVersion("4.2.0")]
 
 [assembly: InternalsVisibleTo("Horton.MigrationGenerator")]
