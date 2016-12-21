@@ -7,12 +7,15 @@ namespace Horton
     public sealed class AddMigrationCommand : HortonCommand
     {
         public override string Name { get { return "ADD-MIGRATION"; } }
-        public override string Description { get { return "Scaffolds a blank migration. Optionally specify a name for the migration as the last  argument."; } }
+        public override string Description { get { return "Scaffolds a blank migration. Optionally specify a name for the migration as the last argument."; } }
 
         public override void Execute(HortonOptions options)
         {
-            Program.PrintLine("=== Add Migration ===");
-            Program.PrintLine();
+            if (!options.Unattend)
+            {
+                Program.PrintLine("=== Add Migration ===");
+                Program.PrintLine();
+            }
 
             var migrationName = "";
             if (options.ExtraArguments.Length > 0)
@@ -21,6 +24,11 @@ namespace Horton
             }
             while (string.IsNullOrEmpty(migrationName))
             {
+                if (options.Unattend)
+                {
+                    Program.PrintErrorLine("Migration name is required while running in Unattend mode. Specificy Migration name as the last argument.");
+                    Environment.Exit(1);
+                }
                 Program.PrintLine("Please enter a name for the migration and press return.");
                 migrationName = Console.ReadLine();
                 Program.PrintLine();
@@ -43,10 +51,12 @@ namespace Horton
 
             File.WriteAllText(newMigrationFullFilePath, "");
 
-            System.Diagnostics.Process.Start(newMigrationFullFilePath);
-
-            Program.PrintLine();
-            Program.PrintLine("Finished.");
+            if (!options.Unattend)
+            {
+                System.Diagnostics.Process.Start(newMigrationFullFilePath);
+                Program.PrintLine();
+                Program.PrintLine("Finished.");
+            }
         }
     }
 }
