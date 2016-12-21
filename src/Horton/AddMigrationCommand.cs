@@ -47,7 +47,7 @@ namespace Horton
             var newMigrationFullFilePath = Path.Combine(newMigrationDirectory, migrationFileName);
 
             Program.Print("Writing migration: ");
-            Program.PrintLine(ConsoleColor.DarkGreen, migrationFileName);
+            Program.PrintLine(ConsoleColor.DarkGreen, newMigrationFullFilePath);
 
             File.WriteAllText(newMigrationFullFilePath, "");
 
