@@ -41,12 +41,12 @@
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AddMigrationCommand.cs" />
     <Compile Include="AppliedMigrationRecord.cs" />
     <Compile Include="AssemblyExtensions.cs" />
     <Compile Include="FileLoader.cs" />

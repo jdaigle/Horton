@@ -7,7 +7,7 @@ namespace Horton
     public class HortonOptions
     {
         public HortonCommand Command { get; set; }
-        public string[] ExtraParameters { get; set; }
+        public string[] ExtraArguments { get; set; }
 
         public string MigrationsDirectoryPath { get; set; } = Environment.CurrentDirectory;
         public string ServerHostname { get; set; } = "localhost";

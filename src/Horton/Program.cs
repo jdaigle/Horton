@@ -121,7 +121,7 @@ namespace Horton
             }
 
             options.Command = HortonCommands.TryParseCommand(extra.FirstOrDefault() ?? "");
-            options.ExtraParameters = extra.Skip(1).ToArray();
+            options.ExtraArguments = extra.Skip(1).ToArray();
 
             string firstValidationMessage = "";
             if (!options.AssertValid(out firstValidationMessage))

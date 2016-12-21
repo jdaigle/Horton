@@ -11,7 +11,8 @@ namespace Horton
             RegisterCommand(new UpdateCommand());
             RegisterCommand(new InfoCommand());
             RegisterCommand(new SyncCommand());
-            RegisterCommand( new HistoryCommand());
+            RegisterCommand(new HistoryCommand());
+            RegisterCommand(new AddMigrationCommand());
         }
 
         private static readonly Dictionary<string, HortonCommand> _commandRegistery = new Dictionary<string, HortonCommand>(StringComparer.OrdinalIgnoreCase);
