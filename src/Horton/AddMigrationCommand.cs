@@ -40,6 +40,13 @@ namespace Horton
             loader.LoadAllFiles();
             var lastMigrationScript = loader.Files.OfType<MigrationScript>().OrderBy(x => x.SerialNumber).Last();
 
+            if (options.Unattend && Path.GetFileNameWithoutExtension(lastMigrationScript.FileName).EndsWith(migrationName, StringComparison.OrdinalIgnoreCase))
+            {
+                Program.Print("Existing migration: ");
+                Program.PrintLine(ConsoleColor.DarkGreen, lastMigrationScript.FilePath);
+                return;
+            }
+
             var newSerialNumber = lastMigrationScript.SerialNumber + 1;
             var serialNumberDigits = lastMigrationScript.FileName.IndexOf('_');
             var newMigrationDirectory = Path.GetDirectoryName(lastMigrationScript.FilePath);
