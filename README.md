@@ -13,4 +13,4 @@ Where can I get it?
 --------------------------------
 Horton is released through GitHub. Download the latest release from the [releases tab](https://github.com/jdaigle/Horton/releases).
 
-Horton is Copyright &copy; 2016 [Joseph Daigle](http://josephdaigle.me) and other contributors under the [MIT license](LICENSE.txt).
+Horton is Copyright &copy; 2017 [Joseph Daigle](http://josephdaigle.me) and other contributors under the [MIT license](LICENSE.txt).

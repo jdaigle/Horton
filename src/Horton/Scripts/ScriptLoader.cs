@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -21,16 +20,16 @@ namespace Horton.Scripts
         {
             var files = new List<ScriptFile>();
             Files = files;
-            files.AddRange(LoadScripts(Path.Combine(path, "/migrations"), MigrationScript.Load));
-            files.AddRange(LoadScripts(Path.Combine(path, "/objects"), ObjectScript.Load));
+            files.AddRange(LoadScripts(path));
         }
 
-        private static List<ScriptFile> LoadScripts(string path, Func<FileInfo, ScriptFile> load)
+        private static List<ScriptFile> LoadScripts(string path)
         {
             var dir = new DirectoryInfo(path);
             var scripts = dir.GetFiles("*.sql", SearchOption.AllDirectories)
-                           .Select(x => load(x))
-                           .Where(x => x != null)
+                           .Select(x => ScriptFile.Load(x))
+                           .OrderBy(x => x.TypeCode)
+                           .ThenBy(x => x.FilePath)
                            .ToList();
 
             var duplicates = scripts.GroupBy(x => x.FileName).Where(x => x.Count() > 1);

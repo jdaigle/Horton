@@ -6,12 +6,25 @@ namespace Horton.Scripts
 {
     public abstract class ScriptFile : IComparable, IComparable<ScriptFile>
     {
+        public static ScriptFile Load(FileInfo x)
+        {
+            var underscoreIndex = x.Name.IndexOf("_");
+            if (underscoreIndex > 0)
+            {
+                var prefix = x.Name.Substring(0, underscoreIndex);
+                if (int.TryParse(prefix, out int serialNumber))
+                {
+                    return new MigrationScript(x.FullName, x.Name, serialNumber);
+                }
+            }
+            return new ObjectScript(x.FullName, x.Name);
+        }
+
         protected ScriptFile(string filePath, string fileName)
         {
             FilePath = filePath;
 
             FileName = fileName;
-            FileNameHash = FileName.SHA1Hash();
 
             Content = File.ReadAllText(FilePath, Encoding.UTF8);
             ContentHash = Content.SHA1Hash();
@@ -20,10 +33,9 @@ namespace Horton.Scripts
         public string FilePath { get; }
 
         public string FileName { get; }
-        public byte[] FileNameHash { get; }
 
         public string Content { get; }
-        public byte[] ContentHash { get; }
+        public string ContentHash { get; }
 
         public abstract byte TypeCode { get; }
         public abstract bool ConflictOnContent { get; }

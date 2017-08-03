@@ -63,7 +63,7 @@ namespace Horton
             var p = new OptionSet()
             {
                 { "d|database=", "database name.\n(required)", a => options.DatabaseName = a },
-                { "f|files=", "path to migration scripts.\n(leave blank for current directory)", a => options.FilesPath = a },
+                { "m|migrations=", "path to migration scripts.\n(leave blank for current directory)", a => options.FilesPath = a },
                 { "s|server=", "server hostname.\n(leave blank for \"(local)\")", a => options.ServerHostname = a },
                 { "u|username=", "username of the database connection.\n(leave blank for integrated security)", a => options.Username = a },
                 { "p|password=", "password of the database connection.\n(required if username is provided)", a => options.Password = a },
@@ -95,7 +95,7 @@ namespace Horton
 
             if (!options.Unattend)
             {
-                PrintLine("Horton. The simple database migration utility.");
+                PrintLine("Horton. The simple database migration utility. (c) 2017 Joseph Daigle and other contributors under the MIT license.");
             }
 
             if (showHelp)
@@ -122,14 +122,15 @@ namespace Horton
 
         static void ShowHelp(OptionSet p)
         {
+            PrintLine(string.Empty);
             PrintLine("Usage: horton.exe -d DATABASE [OPTIONS]");
             PrintLine(string.Empty);
             PrintLine("Options:");
             p.WriteOptionDescriptions(Console.Out);
             PrintLine(string.Empty);
             PrintLine("Examples:");
-            PrintLine(" horton.exe -d Northwind -f \"\\path\\to\\migrations\"");
-            PrintLine(" horton.exe -d Northwind -f \"\\path\\to\\migrations\" -s SERVER -u sa -p pa55w0rd -U");
+            PrintLine(" horton.exe -d Northwind -m \"\\path\\to\\migrations\"");
+            PrintLine(" horton.exe -d Northwind -m \"\\path\\to\\migrations\" -s SERVER -u sa -p pa55w0rd -U");
         }
     }
 }

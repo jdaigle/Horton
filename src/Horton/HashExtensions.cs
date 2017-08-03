@@ -7,24 +7,27 @@ namespace Horton
     {
         private static SHA1 sha1 = SHA1.Create();
 
-        public static byte[] SHA1Hash(this string value) => SHA1Hash(Encoding.UTF8.GetBytes(value));
-
-        public static byte[] SHA1Hash(this byte[] value) => sha1.ComputeHash(value);
-
-        public static bool HashMatches(this byte[] a, byte[] b)
+        public static string SHA1Hash(this string value)
         {
-            if (a == null || b == null || a.Length != b.Length)
+            var buffer = Encoding.UTF8.GetBytes(value);
+            return SHA1Hash(buffer);
+        }
+
+        public static string SHA1Hash(this byte[] value)
+        {
+            var buffer = sha1.ComputeHash(value);
+            return HexStringFromBytes(buffer);
+        }
+
+        public static string HexStringFromBytes(byte[] bytes)
+        {
+            var sb = new StringBuilder();
+            foreach (byte b in bytes)
             {
-                return false;
+                var hex = b.ToString("x2");
+                sb.Append(hex);
             }
-            for (int i = 0; i < a.Length; i++)
-            {
-                if (a[i] != b[i])
-                {
-                    return false;
-                }
-            }
-            return true;
+            return sb.ToString();
         }
     }
 }

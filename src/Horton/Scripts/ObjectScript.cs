@@ -1,14 +1,7 @@
-﻿using System.IO;
-
-namespace Horton.Scripts
+﻿namespace Horton.Scripts
 {
     public class ObjectScript : ScriptFile
     {
-        public static ObjectScript Load(FileInfo x)
-        {
-            return new ObjectScript(x.FullName, x.Name);
-        }
-
         public ObjectScript(string filePath, string fileName)
             : base(filePath, fileName)
         {

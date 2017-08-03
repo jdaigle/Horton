@@ -24,10 +24,10 @@ namespace Horton
 
                 foreach (var file in loader.Files)
                 {
-                    var existingRecord = database.AppliedMigrations.FirstOrDefault(x => file.FileNameHash.HashMatches(x.FileNameHash));
+                    var existingRecord = database.AppliedMigrations.LastOrDefault(x => string.Equals(x.FileName, file.FileName, StringComparison.OrdinalIgnoreCase));
                     if (existingRecord != null)
                     {
-                        if (file.ContentHash.HashMatches(existingRecord.ContentHash))
+                        if (file.ContentHash == existingRecord.ContentHash)
                         {
                             continue;
                         }
