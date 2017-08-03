@@ -14,6 +14,7 @@ namespace Horton
             }
             catch (Exception ex)
             {
+                PrintErrorLine(string.Empty);
                 PrintErrorLine(ex.Message);
                 PrintErrorLine(ex.StackTrace);
 #if DEBUG

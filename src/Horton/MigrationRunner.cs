@@ -33,7 +33,7 @@ namespace Horton
                         }
                         if (file.ConflictOnContent)
                         {
-                            Program.PrintErrorLine($"\nWARNING: The script \"{file.FileName}\" has changed since it was applied on \"{existingRecord.AppliedUTC:yyyy-MM-dd HH:mm:ss.ff}\".");
+                            Program.PrintErrorLine($"WARNING: The script \"{file.FileName}\" has changed since it was applied on \"{existingRecord.AppliedUTC:yyyy-MM-dd HH:mm:ss.ff}\".");
                             hasConflicts = true;
                             if (!options.WarnAndRerunModifiedMigrations)
                             {
@@ -41,20 +41,21 @@ namespace Horton
                             }
                         }
                     }
-                    Program.PrintSuccess($"\n\"{file.FileName}\" will execute.");
+                    Program.PrintSuccessLine($"\"{file.FileName}\" will execute.");
                     toExecute.Add(file);
                 }
 
                 if (hasConflicts && !options.WarnAndRerunModifiedMigrations)
                 {
-                    Program.PrintErrorLine($"\nWARNING: Migrations will not execute until conflicts are resolved.");
+                    Program.PrintErrorLine($"WARNING: Migrations will not execute until conflicts are resolved.");
                     Environment.Exit(1);
                 }
 
                 if (!options.Unattend && toExecute.Any())
                 {
-                    Program.PrintLine($"\nAbout to execute {toExecute.Count} scripts. Press 'y' to continue.");
+                    Program.PrintLine($"About to execute {toExecute.Count} scripts. Press 'y' to continue.");
                     var c = Console.ReadKey();
+                    Program.PrintLine(string.Empty);
                     if (c.KeyChar != 'y' && c.KeyChar != 'Y')
                     {
                         Program.PrintErrorLine("Aborting...");
@@ -70,7 +71,7 @@ namespace Horton
 
                 foreach (var file in toExecute)
                 {
-                    Program.PrintSuccess($"\nRunning \"{file.FileName}\"... ");
+                    Program.PrintSuccess($"Running \"{file.FileName}\"... ");
                     database.Run(file, options.RunBaseline);
                     Program.PrintSuccessLine("done.");
                 }
