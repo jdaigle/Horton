@@ -1,32 +1,36 @@
 ﻿using System;
 using System.Data.SqlClient;
-using System.IO;
 
 namespace Horton
 {
     public class HortonOptions
     {
-        public HortonCommand Command { get; set; }
-        public string[] ExtraArguments { get; set; }
+        public string FilesPath { get; set; } = Environment.CurrentDirectory;
 
-        public string MigrationsDirectoryPath { get; set; } = Environment.CurrentDirectory;
-        public string ServerHostname { get; set; } = "localhost";
         public string DatabaseName { get; set; } = "";
 
+        public string ServerHostname { get; set; } = "(local)";
         public string Username { get; set; } = "";
         public string Password { get; set; } = "";
+        public bool IsIntegratedSecurity => string.IsNullOrWhiteSpace(Username);
         public string ConnectionString { get; set; } = "";
 
         public bool Unattend { get; set; } = false;
 
-        public bool IsIntegratedSecurity => string.IsNullOrWhiteSpace(Username);
+        public bool DryRun { get; set; } = false;
+
+        public bool WarnAndRerunModifiedMigrations { get; set; } = false;
+
+        public bool RunBaseline { get; set; } = false;
 
         public string CreateConnectionString()
         {
-            var connectionStringBuilder = new SqlConnectionStringBuilder();
-            connectionStringBuilder.DataSource = ServerHostname;
-            connectionStringBuilder.InitialCatalog = DatabaseName;
-            connectionStringBuilder.IntegratedSecurity = IsIntegratedSecurity;
+            var connectionStringBuilder = new SqlConnectionStringBuilder()
+            {
+                DataSource = ServerHostname,
+                InitialCatalog = DatabaseName,
+                IntegratedSecurity = IsIntegratedSecurity
+            };
             if (!IsIntegratedSecurity)
             {
                 connectionStringBuilder.UserID = Username;
@@ -38,12 +42,6 @@ namespace Horton
 
         public bool AssertValid(out string firstValidationMessage)
         {
-            if (Command == null)
-            {
-                firstValidationMessage = "Command is required.";
-                return false;
-            }
-
             if (!string.IsNullOrEmpty(ConnectionString))
             {
                 var connectionStringBuilder = new SqlConnectionStringBuilder(ConnectionString);
@@ -53,10 +51,9 @@ namespace Horton
                 Password = connectionStringBuilder.Password;
             }
 
-            TryGetDatabaseNameFromFile();
             if (string.IsNullOrWhiteSpace(DatabaseName))
             {
-                firstValidationMessage = "Database name is required (either by parameter or \"database.name\" file).";
+                firstValidationMessage = "Database name is required.";
                 return false;
             }
 
@@ -68,22 +65,6 @@ namespace Horton
 
             firstValidationMessage = "";
             return true;
-        }
-
-        private void TryGetDatabaseNameFromFile()
-        {
-            if (string.IsNullOrWhiteSpace(DatabaseName))
-            {
-                var databaseNameFile = Path.Combine(MigrationsDirectoryPath, "database.name");
-                if (File.Exists(databaseNameFile))
-                {
-                    var lines = File.ReadAllLines(databaseNameFile);
-                    if (lines.Length > 0)
-                    {
-                        DatabaseName = lines[0].Trim();
-                    }
-                }
-            }
         }
     }
 }
