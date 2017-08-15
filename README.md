@@ -9,7 +9,7 @@ Forward-only database migrations help achieve consistent database upgrades and s
 Instead of comparing two database schemas and generating a diff script, we explicitly design the change scripts first.
 This ensures that changes are applied in a predictable and correct way.
 
-It also allows us to migrate data which is often a critical requirement, and helps achieve multi-step database schema
+It also supports migrating data which is often a critical requirement, and helps achieve multi-step database schema
 refactorings such as renaming or combining/splitting columns.
 
 Where can I get it?
