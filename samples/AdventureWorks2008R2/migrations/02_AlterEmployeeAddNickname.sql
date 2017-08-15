@@ -1,0 +1,1 @@
+ALTER TABLE HumanResources.Employee ADD Nickname nvarchar(100) NOT NULL CONSTRAINT DF_Employee_Nickname DEFAULT('');

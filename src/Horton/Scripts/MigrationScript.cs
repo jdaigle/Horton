@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Horton
+namespace Horton.Scripts
 {
     public class MigrationScript : ScriptFile, IComparable<MigrationScript>
     {
@@ -13,19 +13,25 @@ namespace Horton
         public int SerialNumber { get; }
 
         public override byte TypeCode => 1;
+
         public override bool ConflictOnContent => true;
 
         public override int CompareTo(ScriptFile other)
         {
             if (ReferenceEquals(this, other))
+            {
                 return 0;
+            }
 
-            var otherMigrationScript = other as MigrationScript;
-            if (otherMigrationScript != null)
+            if (other is MigrationScript otherMigrationScript)
+            {
                 return CompareTo(otherMigrationScript);
+            }
 
-            if (other is RepeatableScript)
+            if (other is ObjectScript)
+            {
                 return -1;
+            }
 
             return -1;
         }

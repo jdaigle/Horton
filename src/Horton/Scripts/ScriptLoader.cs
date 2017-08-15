@@ -1,16 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 
-namespace Horton
+namespace Horton.Scripts
 {
-    public class FileLoader
+    public class ScriptLoader
     {
         private readonly string path;
 
-        public FileLoader(string path)
+        public ScriptLoader(string path)
         {
             this.path = path;
         }
@@ -19,18 +18,21 @@ namespace Horton
 
         public void LoadAllFiles()
         {
-            LoadChangeScripts();
+            var files = new List<ScriptFile>();
+            Files = files;
+            files.AddRange(LoadScripts(path));
         }
 
-        private void LoadChangeScripts()
+        private static List<ScriptFile> LoadScripts(string path)
         {
-            var scripts = new DirectoryInfo(path);
-            Files = scripts.GetFiles("*.sql", SearchOption.AllDirectories)
+            var dir = new DirectoryInfo(path);
+            var scripts = dir.GetFiles("*.sql", SearchOption.AllDirectories)
                            .Select(x => ScriptFile.Load(x))
-                           .OrderBy(x => x)
+                           .OrderBy(x => x.TypeCode)
+                           .ThenBy(x => x.FilePath)
                            .ToList();
 
-            var duplicates = Files.GroupBy(x => x.FileNameHash).Where(x => x.Count() > 1);
+            var duplicates = scripts.GroupBy(x => x.FileName).Where(x => x.Count() > 1);
             if (duplicates.Any())
             {
                 var sb = new StringBuilder();
@@ -44,8 +46,10 @@ namespace Horton
                 }
                 sb.AppendLine();
                 sb.AppendLine("All filenames must be unique. Including those in separate subdirectories.");
-                throw new Exception(sb.ToString());
+                throw new DuplicateFilenameException(sb.ToString());
             }
+
+            return scripts;
         }
     }
 }

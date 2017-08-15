@@ -2,28 +2,22 @@
 using System.IO;
 using System.Text;
 
-namespace Horton
+namespace Horton.Scripts
 {
     public abstract class ScriptFile : IComparable, IComparable<ScriptFile>
     {
         public static ScriptFile Load(FileInfo x)
         {
-            int serialNumber = 0;
-            bool isMigration = false;
             var underscoreIndex = x.Name.IndexOf("_");
             if (underscoreIndex > 0)
             {
                 var prefix = x.Name.Substring(0, underscoreIndex);
-                isMigration = int.TryParse(prefix, out serialNumber);
+                if (int.TryParse(prefix, out int serialNumber))
+                {
+                    return new MigrationScript(x.FullName, x.Name, serialNumber);
+                }
             }
-            if (isMigration)
-            {
-                return new MigrationScript(x.FullName, x.Name, serialNumber);
-            }
-            else
-            {
-                return new RepeatableScript(x.FullName, x.Name);
-            }
+            return new ObjectScript(x.FullName, x.Name);
         }
 
         protected ScriptFile(string filePath, string fileName)
@@ -31,19 +25,17 @@ namespace Horton
             FilePath = filePath;
 
             FileName = fileName;
-            FileNameHash = FileName.MD5Hash();
 
             Content = File.ReadAllText(FilePath, Encoding.UTF8);
-            ContentSHA1Hash = Content.SHA1Hash();
+            ContentHash = Content.SHA1Hash();
         }
 
         public string FilePath { get; }
 
         public string FileName { get; }
-        public Guid FileNameHash { get; }
 
         public string Content { get; }
-        public string ContentSHA1Hash { get; }
+        public string ContentHash { get; }
 
         public abstract byte TypeCode { get; }
         public abstract bool ConflictOnContent { get; }
@@ -51,19 +43,18 @@ namespace Horton
         public int CompareTo(object obj)
         {
             if (ReferenceEquals(this, obj))
+            {
                 return 0;
+            }
 
-            var other = obj as ScriptFile;
-            if (other != null)
+            if (obj is ScriptFile other)
+            {
                 return CompareTo(other);
+            }
 
             throw new InvalidOperationException($"{nameof(obj)} is not {typeof(ScriptFile).FullName}");
         }
 
-        public virtual int CompareTo(ScriptFile other)
-            => FileName.CompareTo(other.FileName);
-
-        public bool ContentMatches(string contentSHA1Hash)
-            => string.Equals(ContentSHA1Hash, contentSHA1Hash, StringComparison.OrdinalIgnoreCase);
+        public virtual int CompareTo(ScriptFile other) => FileName.CompareTo(other.FileName);
     }
 }
